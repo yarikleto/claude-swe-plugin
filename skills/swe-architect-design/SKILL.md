@@ -15,12 +15,9 @@ You are the CEO. The product vision is approved, the prototype is approved. Now 
 Check that these files exist:
 - `.claude/product-vision.md` — the product vision
 - `.claude/prototypes/` — at least one prototype version
-- `.claude/design-spec.md` — design specification (tokens, components, screens) — **required before architecture**
 - `.claude/ceo-brain.md` — CEO knowledge base
 
-If `.claude/design-spec.md` is missing, tell the user: "Design spec must be created first. Run `/claude-swe-plugin:swe-designer-spec` to extract it from the approved prototype."
-
-If other files are missing, suggest running `/claude-swe-plugin:swe-init` first.
+If any are missing, tell the user what's needed and suggest running `/claude-swe-plugin:swe-init` first.
 
 If `$ARGUMENTS` contains `--update`, read the existing `.claude/system-design.md` — architect will revise, not start from scratch.
 
