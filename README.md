@@ -6,7 +6,7 @@
 
 <p align="center">
   <strong>A full software engineering team inside Claude Code.</strong><br>
-  CEO orchestrator + 8 specialized agents + 9 skills = from idea to production.
+  CEO orchestrator + 9 specialized agents + 10 skills = from idea to production.
 </p>
 
 <p align="center">
@@ -71,7 +71,7 @@ That's it. The CEO will start a conversation with you, understand what you want 
 
 ## The Team
 
-The plugin creates a virtual engineering organization with 8 specialized agents, orchestrated by a CEO persona defined in your project's `CLAUDE.md`.
+The plugin creates a virtual engineering organization with 9 specialized agents, orchestrated by a CEO persona defined in your project's `CLAUDE.md`.
 
 <table>
 <tr>
@@ -81,31 +81,34 @@ The plugin creates a virtual engineering organization with 8 specialized agents,
 The orchestrator. Thinks like Bezos (Type 1/Type 2 decisions), Jobs (focus = saying no), Musk (first principles). Never writes code. Delegates everything. Plays devil's advocate. Runs pre-mortems. Uses the Editor Model for delegation (Rabois).
 
 ### Designer
-Aesthetic sensibility trained on Dieter Rams, Jony Ive, and Swiss design. Knows color theory (60-30-10), typography (modular scale), layout (8px grid). Researches Mobbin/Dribbble/Awwwards before designing. Creates Excalidraw wireframes and HTML+Tailwind interactive prototypes. Adapts to project type (web, mobile, CLI, API).
+Aesthetic sensibility trained on Dieter Rams, Jony Ive, and Swiss design. Knows color theory (60-30-10), typography (modular scale), layout (8px grid). Researches Mobbin/Dribbble/Awwwards before designing. Creates Excalidraw wireframes and HTML+Tailwind interactive prototypes. Adapts to project type (web, mobile, CLI, API, game, desktop).
 
 ### UX Engineer
-Ensures products are genuinely usable, not just beautiful. Nielsen's 10 Heuristics as a concrete checklist. Checks cognitive load (Miller's, Hick's, Fitts's laws). WCAG AA accessibility is non-negotiable. Catches dark patterns, modal overuse, unhelpful errors, mystery meat navigation.
+Ensures products are genuinely usable, not just beautiful. Nielsen's 10 Heuristics as a concrete checklist. Checks cognitive load (Miller's, Hick's, Fitts's laws). WCAG AA accessibility is non-negotiable. Adapts to project type — web forms, CLI help text, API developer experience, mobile thumb zones.
 
 ### Architect
-Thinks in trade-offs (Richards & Ford). Starts simple (Gall's Law). Boring technology by default (McKinley). Classifies decisions as Type 1/Type 2. Writes ADRs. Creates C4 diagrams. Knows when to use modular monolith vs microservices vs event-driven vs hexagonal. Designs for failure.
+Domain-agnostic. Thinks in trade-offs (Richards & Ford). Starts simple (Gall's Law). Boring technology by default (McKinley). Classifies decisions as Type 1/Type 2. Writes ADRs. Creates C4 diagrams. Knows patterns for web, mobile, CLI, game, blockchain, embedded, data pipelines. Designs for failure.
+
+### DBA (Database Master)
+Database-agnostic — chooses the right engine for the domain (relational, document, graph, key-value, time-series, embedded). Knows DDD bounded contexts, event sourcing, CQRS, temporal data, saga/outbox patterns. Domain-specific modeling (e-commerce, financial, social, IoT). Zero-downtime migrations. "The database outlives the application."
 
 </td>
 <td width="50%" valign="top">
 
 ### Developer
-Data structures first, code second (Torvalds). Makes TDD tests green, then refactors (Beck). Eliminates edge cases through better design, not conditionals (Torvalds' "good taste"). Immutability and pure functions by default (Hickey, Carmack). **Forbidden from touching test files.**
+Data structures first, code second (Torvalds). Makes TDD tests green, then refactors (Beck). Eliminates edge cases through better design, not conditionals (Torvalds' "good taste"). Immutability and pure functions by default (Hickey, Carmack). Owns documentation and DB migrations. **Forbidden from touching test files.**
 
 ### Tester (TDD)
 Kent Beck's Three Laws of TDD. Writes failing tests BEFORE the developer writes code. Test list first, then Red-Green-Refactor. Equivalence partitioning, boundary values, state transitions, error guessing. Knows the test doubles taxonomy (Meszaros). **Forbidden from touching production code.**
 
 ### Reviewer
-Triple gatekeeper: (1) Iron Rule — developer didn't touch tests, tester didn't touch code. (2) Anti-cheat — catches hardcoded returns, condition-matching, stub code, incomplete implementations. (3) Code quality — correctness, security, edge cases. Nothing ships without APPROVE.
+Triple gatekeeper: (1) Iron Rule — verifies via `git diff` that developer didn't touch tests, tester didn't touch code. (2) Robustness — implementation is genuine, general, and robust (not fitted to test cases). Fair — simple code for simple problems is fine. (3) Code quality — correctness, security, edge cases. Nothing ships without APPROVE.
 
 ### DevOps
 CI/CD, Docker, cloud, domains, CDN, SSL, monitoring. Starts simple (PaaS > K8s). "If it hurts, do it more often." Creates handoff guides for things the client must do (domain purchase, cloud accounts, API keys). Works with architect to ensure the system actually runs in production.
 
 ### Researcher
-Intelligence analyst with 6 modes: market/domain research, codebase exploration, technology evaluation, UX research, bug investigation, infrastructure comparison. BLUF reporting. Confidence levels. Any agent can delegate here.
+Intelligence analyst with 6 modes: market/domain research, codebase exploration, technology evaluation, UX research, bug investigation, infrastructure comparison. BLUF reporting. Confidence levels (confirmed/likely/possible/speculative). Any agent can delegate here.
 
 </td>
 </tr>
@@ -115,44 +118,48 @@ Intelligence analyst with 6 modes: market/domain research, codebase exploration,
 
 > **Developer MUST NOT touch test code. Tester MUST NOT touch production code.**
 
-This is the most important rule in the system. The person who writes the spec (tests) is never the person who implements it. The reviewer enforces this with automatic BLOCKER on any violation.
+This is the most important rule in the system. The person who writes the spec (tests) is never the person who implements it. The reviewer enforces this via `git diff` between agent commits — automatic BLOCKER on any violation.
 
 ## Skills
 
-| Skill | Purpose | Runs |
-|-------|---------|------|
-| `/swe-init` | Project kickoff — conversation with client, product vision, prototypes, iterate until approved | CEO + Designer + UX Engineer |
-| `/swe-design-spec` | Extract design specification from approved prototype (tokens, components, screens) | Designer |
-| `/swe-design` | System design — architecture, ADRs, data model, APIs, C4 diagrams | Architect + DevOps |
-| `/swe-deploy` | Infrastructure setup — CI/CD, Docker, hosting, CDN, monitoring + client handoff guides | DevOps |
-| `/swe-tasks` | Decompose system design into tasks with statuses, dependencies, acceptance criteria | Architect |
-| `/swe-test-plan` | Test strategy — frameworks, pyramid, coverage map, Definition of Done | Tester |
-| `/swe-sprint` | Execute the task cycle: tester(Red) → developer(Green) → reviewer → designer/UX → DONE | CEO orchestrates all |
-| `/swe-brief` | CEO revisits product vision, checks reality vs plan, updates strategic documents | CEO + Researcher |
-| `/swe-sync` | Quick sync — CEO reviews recent changes, updates knowledge base | CEO + Researcher |
+| Skill | Purpose | Agent |
+|-------|---------|-------|
+| `/swe-init` | Project kickoff — conversation, product vision, prototypes, iterate until approved | CEO |
+| `/swe-designer-spec` | Extract design specification from approved prototype (tokens, components, screens) | Designer |
+| `/swe-architect-design` | System design — architecture, ADRs, data model, APIs, C4 diagrams | Architect + DevOps |
+| `/swe-dba-schema` | Database schema — tables, indexes, constraints, ER diagram, migration plan | DBA |
+| `/swe-devops-deploy` | Infrastructure — CI/CD, Docker, hosting, CDN, monitoring + client handoff guides | DevOps |
+| `/swe-architect-tasks` | Decompose system design into tasks with statuses, dependencies, acceptance criteria | Architect |
+| `/swe-tester-plan` | Test strategy — frameworks, pyramid, coverage map, Definition of Done | Tester |
+| `/swe-sprint` | Execute the task cycle: tester(Red) → developer(Green) → reviewer → designer/UX → DONE | CEO |
+| `/swe-brief` | CEO revisits product vision, checks reality vs plan, updates strategic documents | CEO |
+| `/swe-sync` | Quick sync — CEO reviews recent changes, updates knowledge base | CEO |
 
 ## The Pipeline
 
 ```
-/swe-init           Client conversation → Product vision → Prototypes → Client approval
+/swe-init              Client conversation → Product vision → Prototypes
+                        → UX review → Client approval → Design spec extracted
       ↓
-/swe-design-spec    Design tokens, components, screen map from prototype
+/swe-architect-design  System design (architect + devops together)
       ↓
-/swe-design         System design + Infrastructure plan (architect + devops together)
+/swe-dba-schema        Database schema, ER diagram, migrations
       ↓
-/swe-deploy         CI/CD, Docker, hosting, monitoring + handoff guides for client
+/swe-devops-deploy     CI/CD, Docker, hosting, monitoring + handoff guides
       ↓
-/swe-tasks          Task breakdown — walking skeleton first, then vertical slices
+/swe-architect-tasks   Task breakdown — walking skeleton first, vertical slices
+                        (uses design-spec for screen refs + visual criteria)
       ↓
-/swe-test-plan      Test strategy, frameworks, coverage map
+/swe-tester-plan       Test strategy, frameworks, coverage map
       ↓
-/swe-sprint         For each task:
-                      ┌─ tester writes failing tests (Red)
-                      ├─ developer makes them green (Green)
-                      ├─ reviewer verifies (Iron Rule + anti-cheat + quality)
-                      ├─ designer checks visual fidelity (UI tasks)
-                      ├─ UX engineer checks usability (UI tasks)
-                      └─ DONE → next task
+/swe-sprint            For each task:
+                         ┌─ interface contract (architect, if new module)
+                         ├─ tester writes failing tests (Red)
+                         ├─ developer makes them green (Green)
+                         ├─ reviewer verifies (Iron Rule + robustness + quality)
+                         ├─ designer checks visual fidelity (UI tasks)
+                         ├─ UX engineer checks usability (UI tasks)
+                         └─ DONE → next task
 ```
 
 ## The Task Cycle
@@ -165,7 +172,19 @@ TODO → TESTING → READY → IN_PROGRESS → IN_REVIEW → DONE
                                          BLOCKER → revert → TESTING
 ```
 
-Every task goes through: **tester (Red) → developer (Green) → reviewer → designer + UX (if UI) → DONE**
+### Special task types
+
+- **`setup`** — developer only → reviewer (bootstrap, scaffolding)
+- **`refactor`** — developer → reviewer → tester runs regression (no new tests)
+- **`performance`** — researcher profiles → developer optimizes → tester benchmarks
+- **`hotfix`** — fast-track: developer fixes → reviewer quick review → tester adds regression test after
+
+### Bootstrap (first sprint)
+
+Before the first task cycle, the bootstrap phase runs:
+1. **Developer** scaffolds the project (package.json, directory structure, configs)
+2. **Tester** sets up test infrastructure (framework, config, directory, trivial passing test)
+3. **DevOps** creates Dockerfile, docker-compose, CI pipeline
 
 ## Circuit Breakers
 
@@ -187,28 +206,31 @@ The CEO stops the cycle and talks to the client when:
 ```
 claude-swe-plugin/
 ├── .claude-plugin/
-│   └── plugin.json                 # Plugin manifest
+│   ├── plugin.json                 # Plugin manifest
+│   └── marketplace.json            # Marketplace discovery
 ├── .mcp.json                       # Playwright MCP for screenshots
 ├── hooks/
 │   └── hooks.json                  # SessionStart → loads CEO knowledge base
 ├── scripts/
 │   └── session-start.sh            # Reads .claude/ceo-brain.md into context
 ├── agents/
-│   ├── architect.md                # System design, ADRs, C4 diagrams
+│   ├── architect.md                # Domain-agnostic system design, ADRs, C4
+│   ├── dba.md                      # Database-agnostic schema, migrations, integrity
 │   ├── designer.md                 # Prototypes, visual review, design spec
 │   ├── developer.md                # Implementation (forbidden from tests)
 │   ├── devops.md                   # CI/CD, infrastructure, handoff guides
 │   ├── researcher.md               # 6-mode intelligence analyst
-│   ├── reviewer.md                 # Iron Rule + anti-cheat + quality gate
+│   ├── reviewer.md                 # Iron Rule + robustness + quality gate
 │   ├── tester.md                   # TDD, writes tests first (forbidden from code)
 │   └── ux-engineer.md              # Nielsen's 10 heuristics, accessibility
 └── skills/
     ├── swe-init/SKILL.md           # Project kickoff
-    ├── swe-design-spec/SKILL.md    # Design specification
-    ├── swe-design/SKILL.md         # System design
-    ├── swe-deploy/SKILL.md         # Infrastructure setup
-    ├── swe-tasks/SKILL.md          # Task decomposition
-    ├── swe-test-plan/SKILL.md      # Test strategy
+    ├── swe-designer-spec/SKILL.md  # Design specification
+    ├── swe-architect-design/SKILL.md # System design
+    ├── swe-dba-schema/SKILL.md     # Database schema design
+    ├── swe-devops-deploy/SKILL.md  # Infrastructure setup
+    ├── swe-architect-tasks/SKILL.md # Task decomposition
+    ├── swe-tester-plan/SKILL.md    # Test strategy
     ├── swe-sprint/SKILL.md         # Task execution cycle
     ├── swe-brief/SKILL.md          # Strategic review
     └── swe-sync/SKILL.md           # Quick sync
@@ -222,12 +244,14 @@ claude-swe-plugin/
 ├── product-vision.md         # Product vision (approved by client)
 ├── design-spec.md            # Design tokens, components, screens
 ├── system-design.md          # Architecture, ADRs, data model, APIs
+├── database-schema.md        # DB schema, ER diagram, migrations, indexes
 ├── infra-plan.md             # Infrastructure, CI/CD, costs
 ├── tasks.md                  # Task breakdown with statuses
 ├── test-plan.md              # Test strategy
 ├── prototypes/               # All prototype versions (never deleted)
 ├── handoff/                  # Client action guides (from DevOps)
 ├── research/                 # All research output (from Researcher)
+├── contracts/                # Interface contracts per task (from Architect)
 └── decisions/                # Individual ADR files
 ```
 
@@ -235,14 +259,15 @@ claude-swe-plugin/
 
 This is not a web-only plugin. It adapts to whatever you're building:
 
-| Project Type | Designer | UX Engineer | DevOps |
-|---|---|---|---|
-| **Web App** | HTML+Tailwind prototypes | Full heuristic + accessibility audit | Vercel/Railway + CDN |
-| **Mobile App** | HTML mobile viewport prototypes | Touch targets, thumb zones, platform HIG | App store handoff guides |
-| **CLI Tool** | Terminal output mockups, shell scripts | Help text, flags, error messages, `NO_COLOR` | Homebrew/cargo publish |
-| **API/SDK** | Code examples, README-style docs | Developer experience, naming, error format | Docs hosting, versioning |
-| **Game** | Screen mockups, HUD layout | Controls, onboarding, menu flow | Build pipeline, distribution |
-| **Backend/Infra** | Architecture diagrams only | Config ergonomics, error logging | Cloud setup, monitoring |
+| Project Type | Designer | UX Engineer | Architect | DBA | DevOps |
+|---|---|---|---|---|---|
+| **Web App** | HTML+Tailwind prototypes | Full heuristic + a11y audit | Modular monolith / hexagonal | Postgres + JSONB | Vercel/Railway + CDN |
+| **Mobile App** | HTML mobile viewport | Touch targets, thumb zones, HIG | Clean Architecture MVVM | SQLite / Core Data | App store handoff guides |
+| **CLI Tool** | Terminal mockups, shell scripts | Help text, flags, `NO_COLOR` | Plugin architecture | Flat files / SQLite | Homebrew/cargo publish |
+| **API/SDK** | Code examples, README docs | DX: naming, errors, docs | Clear public surface, semver | Depends on domain | Docs hosting, versioning |
+| **Game** | Screen mockups, HUD layout | Controls, onboarding, menus | ECS / scene graph | Depends on persistence | Build pipeline, distribution |
+| **Blockchain** | State diagrams | Config ergonomics | Consensus + state machine | Embedded / distributed | Node deployment |
+| **Backend/Infra** | Architecture diagrams | Error logging, config | Event-driven / pipeline | Domain-specific | Cloud setup, monitoring |
 
 ## Philosophy
 
@@ -257,8 +282,11 @@ Built on the shoulders of:
 - **Don Norman** — Affordances, signifiers, conceptual models
 - **Nielsen** — 10 Usability Heuristics
 - **Gene Kim** — The Three Ways of DevOps
+- **Martin Kleppmann** — Designing Data-Intensive Applications
 - **Martin Fowler** — Testing pyramid, evolutionary architecture
 - **Sandi Metz** — "Duplication is far cheaper than the wrong abstraction"
+- **Codd & Date** — Relational theory, normalization
+- **Markus Winand** — SQL performance, "Use The Index, Luke"
 
 ## License
 
