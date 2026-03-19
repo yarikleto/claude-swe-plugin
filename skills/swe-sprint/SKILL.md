@@ -79,7 +79,35 @@ Send **tester** with this brief:
 >
 > Run the tests — they should fail (Red). Compilation errors count as failing.
 
-When tester returns, verify tests were written. **Commit tester's work:**
+When tester returns, verify tests were written.
+
+### Step 3a: Architect verifies test-spec alignment
+
+Before committing, send **architect** to verify the tester didn't write wrong tests:
+
+> Review the tests written for TASK-{N}.
+> Read `.claude/tasks/TASK-{N}.md` for the acceptance criteria.
+> Read `.claude/system-design.md` for the architecture context.
+> If a contract exists at `.claude/contracts/TASK-{N}.md`, read that too.
+> Read the test files the tester created.
+>
+> Check:
+> 1. **Criteria coverage:** Does every acceptance criterion have at least one test that actually verifies it? Not just a test that mentions it — a test whose assertions would fail if the criterion weren't met.
+> 2. **Correct assertions:** Do the tests assert what the criteria actually ask for? Watch for subtle mismatches (e.g., testing 200 when spec says 201, testing field exists when spec says field is validated, testing happy path when spec requires error handling).
+> 3. **Wrong assumptions:** Did the tester misinterpret a requirement? (e.g., testing a field as optional when the spec says required, using wrong boundary values, expecting the wrong error type)
+> 4. **Over-specification:** Do any tests lock in implementation details the spec doesn't mandate? (e.g., asserting internal method calls, exact SQL queries, specific algorithms when only the result matters). These force the developer into a narrow implementation path.
+>
+> Return: PASS (tests correctly encode the spec) or FAIL with specific issues (which test, what it asserts, what the spec actually says).
+
+**If architect says PASS:** Commit and continue.
+
+**If architect says FAIL:**
+- Send **tester** back with the architect's specific feedback to fix the tests.
+- After tester fixes, architect re-verifies. Max 1 round — if still misaligned, circuit breaker.
+
+**Skip this step** for S-sized tasks with straightforward acceptance criteria (e.g., "add a field", "rename X to Y"). Use judgment — if the criteria are simple and unambiguous, the overhead isn't worth it.
+
+**Commit tester's work:**
 ```
 git add -A && git commit -m "test(TASK-{N}): failing tests — {brief description}"
 ```
@@ -110,6 +138,8 @@ Send **developer** with this brief:
 > Remember: you MUST NOT touch any test files. Only production code.
 >
 > Run the full test suite after implementation — new tests AND existing tests must all pass.
+>
+> **If you believe a test is wrong:** Don't silently work around it. Report it clearly in your output: which test, what it asserts, what the spec actually says, and why you believe the test is incorrect. Provide evidence (quote the acceptance criteria, reference the system design). You may still implement the rest of the task — just flag the disputed test.
 
 When developer returns, verify tests pass. **Commit developer's work:**
 ```
@@ -122,7 +152,9 @@ Update task status to `IN_REVIEW` in `.claude/tasks/TASK-{N}.md`.
 
 ### Step 4a: Test dispute protocol
 
-If the developer reports they CANNOT make a test green because the test is wrong (not the implementation):
+The developer can challenge tests at ANY point — during implementation (can't make it green) or after (made it green but believes the test is wrong). Both are valid.
+
+**Case 1: Developer CANNOT make a test green** because the test is wrong (not the implementation):
 
 1. Developer explains specifically: which test, what it expects, why it's incorrect
 2. **Do NOT escalate to the client.** This is an internal issue.
@@ -130,6 +162,17 @@ If the developer reports they CANNOT make a test green because the test is wrong
 4. If tester agrees and fixes the test → commit → status back to `READY` → developer continues
 5. If tester disagrees → send **architect** to arbitrate based on system design → winner implements the decision
 6. Max 1 dispute round per task. If still unresolved → circuit breaker.
+
+**Case 2: Developer MADE tests green but flags a test as wrong:**
+
+The developer implemented to the test but reports: "I made test X pass, but it's testing the wrong thing — the spec says Y, the test asserts Z."
+
+1. Note the developer's concern — include it in the reviewer brief (Step 5)
+2. Reviewer evaluates the dispute as part of Test-Spec Alignment (Responsibility 3)
+3. If reviewer agrees the test is wrong → `CHANGES REQUESTED (test-spec misalignment)` → tester fixes → developer re-implements
+4. If reviewer disagrees → the implementation stands, no action needed
+
+The developer's evidence-based challenge is a valuable signal. Developers read tests deeply during implementation and often spot mismatches that others miss.
 
 ### Special task types
 
@@ -148,18 +191,28 @@ Send **reviewer** with this brief:
 > Review the work done for TASK-{N}.
 >
 > Read `.claude/tasks/TASK-{N}.md` for the acceptance criteria.
+> Read `.claude/system-design.md` for the architecture context.
 >
 > You MUST check in this order:
 >
 > **Iron Rule (check FIRST — non-negotiable):**
 > 1. Verify developer did NOT create, modify, or delete any test files
 > 2. Verify tester did NOT create, modify, or delete any production code files
-> 3. Run the full test suite — all tests must pass
-> 4. Verify each acceptance criterion is met
 >
-> **Code Quality (only if Iron Rule passes):**
-> 5. Review production code for correctness, security, edge cases
-> 6. Review test code for coverage quality and test design
+> **Anti-Cheat (verify implementation is genuine):**
+> 3. Check for hardcoded values, test-fitted conditionals, stubs, incomplete implementation
+>
+> **Test-Spec Alignment:**
+> 4. Verify tests actually match the acceptance criteria — correct assertions, no wrong assumptions, no over-specification
+> {IF developer flagged a test dispute: "The developer flagged a concern: {paste developer's dispute}. Evaluate this as part of your test-spec alignment check."}
+>
+> **Test Results:**
+> 5. Run the full test suite — all tests must pass
+> 6. Verify each acceptance criterion is met
+>
+> **Code Quality (only if above all pass):**
+> 7. Review production code for correctness, security, edge cases
+> 8. Review test code for coverage quality and test design
 >
 > Return your verdict: APPROVE, CHANGES REQUESTED, or BLOCKER.
 

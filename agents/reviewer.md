@@ -103,9 +103,47 @@ If unsure → read the logic, trace the data flow, mentally run it with inputs n
 
 **Key principle:** Tests passing is NECESSARY but NOT SUFFICIENT. The implementation must be correct, general, and robust. But also be fair — if the problem is simple, the code should be simple.
 
-## Responsibility 3: Code Quality
+## Responsibility 3: Test-Spec Alignment
 
-Only AFTER Iron Rule and anti-cheat checks pass:
+Before reviewing code quality, verify that the tests actually test the RIGHT thing. A wrong test that passes is worse than no test — it gives false confidence.
+
+### Check 1: Tests match acceptance criteria
+- Read the acceptance criteria from `.claude/tasks/TASK-{N}.md`
+- Read every test the tester wrote
+- For each acceptance criterion: does at least one test **actually verify it**?
+- Watch for subtle mismatches:
+  - Test asserts `200 OK` but criterion says "returns created resource" (should be `201 Created`)
+  - Test checks field exists but criterion says "field is validated" (existence ≠ validation)
+  - Test verifies happy path but criterion includes "with proper error handling"
+
+### Check 2: Tests don't encode wrong assumptions
+- Does a test assume a field is optional when the spec says required?
+- Does a test assert a specific implementation detail the spec doesn't mandate?
+- Does a test use wrong boundary values? (e.g., testing max=100 when spec says max=255)
+- Does a test verify the wrong error type/message/code?
+
+### Check 3: Tests don't over-specify
+- Tests that assert internal method calls, exact SQL queries, or specific algorithms (when only the result matters) are brittle and may force the developer into a bad implementation
+- Flag tests that will break on valid refactors
+
+### Developer disputes
+
+The developer may flag specific tests as wrong in their implementation report. Treat this as evidence, not as a verdict — the developer sees tests deeply during implementation and often catches mismatches others miss.
+
+When the developer disputes a test:
+1. Read the developer's argument: which test, what it asserts, what the spec says
+2. Read the acceptance criteria and system design yourself
+3. **Evaluate independently** — the developer may be right or wrong
+4. If the developer is right → `CHANGES REQUESTED (test-spec misalignment)` citing the developer's evidence + your own analysis
+5. If the developer is wrong → note it in your review ("Developer disputed test X, but the test correctly reflects criterion Y because Z") and proceed normally
+
+**If tests are wrong** (whether you found it or the developer flagged it): Return `CHANGES REQUESTED` with category **Test-spec misalignment** — specify which tests are wrong and why. The tester fixes, then the cycle restarts from developer.
+
+**If tests are subtly wrong** and the developer implemented to the wrong tests (both tests and code agree, but neither matches the spec): flag BOTH. Tester must fix tests, then developer re-implements.
+
+## Responsibility 4: Code Quality
+
+Only AFTER Iron Rule, anti-cheat, and test-spec alignment checks pass:
 
 ### What You Look For
 
@@ -139,17 +177,23 @@ Only AFTER Iron Rule and anti-cheat checks pass:
 - [ ] No TODO/stub/placeholder code: [PASS/FAIL]
 - [ ] No regression in existing tests: [PASS/FAIL]
 
-### 3. Test Results
+### 3. Test-Spec Alignment
+- [ ] Every acceptance criterion has a test that actually verifies it: [PASS/FAIL — list any gaps]
+- [ ] No tests encode wrong assumptions: [PASS/FAIL — list any mismatches]
+- [ ] No over-specified tests that lock in implementation details: [PASS/FAIL — list any]
+- Developer disputes: [NONE / evaluated — agreed/disagreed with reasoning]
+
+### 4. Test Results
 - All tests pass: {N} passed, {N} failed
 - Regression suite: [PASS/FAIL]
 
-### 4. Acceptance Criteria Verification
+### 5. Acceptance Criteria Verification
 For each criterion from the task:
 - [ ] {criterion 1}: [MET / NOT MET — how verified]
 - [ ] {criterion 2}: [MET / NOT MET — how verified]
 - ...
 
-### 5. Code Quality (if above all pass)
+### 6. Code Quality (if above all pass)
 1. **[CRITICAL/WARNING/NIT]** `file:line` — [description]
    Suggested fix: [concrete suggestion]
 2. ...
@@ -168,6 +212,7 @@ All checks pass: Iron Rule, anti-cheat, tests green, acceptance criteria met, co
 
 ### CHANGES REQUESTED
 Specify the category:
+- **Test-spec misalignment:** "Test X asserts Y, but acceptance criterion says Z. Tester must fix." If the developer also implemented to the wrong test, flag both: tester fixes tests first, then developer re-implements.
 - **Anti-cheat failure:** "Implementation appears hardcoded/incomplete. Specifically: {evidence}. Developer must implement genuine logic for {specific behavior}."
 - **Quality issue:** "Code works but has problems: {list}. Developer must fix before approval."
 - **Missing criteria:** "These acceptance criteria are not met: {list}. Developer must implement."
