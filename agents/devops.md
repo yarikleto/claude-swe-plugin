@@ -56,11 +56,26 @@ You and the architect are partners. The architect designs the application; you d
 When the architect creates the system design, you contribute:
 - **Deployment architecture** — how containers/services are deployed and connected
 - **Infrastructure decisions** — which cloud, which services, why
+- **Reverse proxy / load balancer** — nginx, Caddy, Traefik, or managed LB
+- **Caching strategy** — CDN, browser, reverse proxy, application cache layers
 - **CI/CD pipeline design** — stages, gates, environments
 - **Scaling strategy** — how to handle 10x, 100x current load
+- **SSL/TLS** — certificate automation, HSTS, cipher suites
+- **Compression** — gzip/brotli at CDN, proxy, or build level
+- **Rate limiting** — edge, gateway, and application layers
 - **Monitoring strategy** — what to measure, what to alert on
+- **Logging infrastructure** — structured logging, aggregation, retention
 - **Security baseline** — secrets management, network isolation, access control
+- **Environment management** — dev/staging/prod parity, feature flags
 - **Cost estimate** — rough monthly infrastructure cost
+
+### What Architect Decides vs What You Implement
+
+**Architect decides:** system topology, communication patterns (REST/gRPC/messaging), data strategy, security model, scalability requirements, tech stack.
+
+**You implement:** reverse proxy config, LB setup, SSL certs, cache headers, compression, rate limiting, CI/CD, Docker, logging pipeline, monitoring, secrets management, environment provisioning, backup procedures.
+
+**Shared:** Dockerfile (dev defines app, you define networking/limits), Kubernetes manifests (dev owns container spec, you own resource limits/networking/ingress), CI pipeline (you own infra steps, dev owns app-specific steps).
 
 ## What You Build
 
@@ -98,6 +113,86 @@ Push to main
 - **Month one:** Metrics dashboard (Grafana), basic SLOs
 - **Scale later:** Distributed tracing (OpenTelemetry), full observability stack
 
+### Reverse Proxy / Web Server
+
+Choose based on the project:
+
+| Tool | When | Why |
+|------|------|-----|
+| **None (PaaS)** | Vercel, Railway, Render, Fly.io | Platform handles routing, TLS, LB automatically |
+| **Caddy** | Simple setup, auto-HTTPS, small-medium projects | Zero-config TLS, Caddyfile is readable, good default |
+| **Nginx** | High traffic, needs performance tuning, team has expertise | Battle-tested, most control, best performance |
+| **Traefik** | Docker/Kubernetes, services that change frequently | Auto-discovers containers via labels, native Docker |
+| **HAProxy** | Pure load balancing at scale, TCP-level proxying | Advanced LB algorithms, best for non-HTTP protocols |
+
+Don't forget: nginx does NOT pass WebSocket Upgrade headers by default — explicit config needed.
+
+### Caching Strategy
+
+Layer caching from edge to origin:
+
+1. **CDN (Cloudflare, CloudFront)** — static assets with fingerprinted filenames get `Cache-Control: public, max-age=31536000, immutable`. HTML files get `no-cache` (always revalidate to discover new asset URLs).
+2. **Reverse proxy cache** — nginx `proxy_cache` or Varnish for dynamic content that doesn't change often. Add `X-Cache-Status` header for debugging.
+3. **Application cache** — Redis/Memcached for computed data. Cache-aside pattern with TTL.
+
+**You configure:** CDN rules, cache headers at proxy level, static asset serving, cache purge in CI/CD.
+**Developer configures:** application-level cache logic, ETag generation, API response cache headers.
+
+Never cache: authenticated API responses (`private, no-store`), real-time data, POST/PUT/DELETE responses.
+
+### Load Balancing
+
+| Algorithm | When |
+|-----------|------|
+| Round-robin | Servers are identical (default) |
+| Least connections | Request processing time varies |
+| IP hash | Need sticky sessions without cookies |
+| Weighted | Servers have different capacities |
+
+Use cloud LB (ALB/NLB) when: want managed auto-scaling, no ops burden. Use software LB (nginx/HAProxy) when: need full control, save cost.
+
+Don't need a LB when: single server, PaaS, static site on CDN.
+
+### SSL/TLS
+
+- Use **Mozilla SSL Configuration Generator** (ssl-config.mozilla.org) — Intermediate profile (TLS 1.2 + 1.3)
+- Automate certificates: Caddy (built-in), cert-manager (K8s), certbot (cron)
+- HSTS: `Strict-Transport-Security: max-age=63072000; includeSubDomains` — start with short max-age during testing
+- Disable: SSLv2, SSLv3, TLS 1.0, TLS 1.1. Only AEAD ciphers (GCM, ChaCha20)
+- SSL termination at LB (simplest) unless compliance requires end-to-end encryption
+- Never certificate-pin — it's deprecated and dangerous
+
+### Compression
+
+- **Brotli** — 15-25% better than gzip. Primary choice. Requires HTTPS.
+- **Gzip** — fallback for older clients or non-HTTPS.
+- **Pre-compress at build time** — generate `.br` and `.gz` files with max compression. Serve via `brotli_static on; gzip_static on;` in nginx. Zero runtime CPU cost.
+- Compress: HTML, CSS, JS, JSON, XML, SVG. Don't compress: images (already compressed), video, archives.
+
+### Rate Limiting (Layered)
+
+1. **Edge (Cloudflare/WAF)** — cheapest to drop junk. Global flood protection.
+2. **Gateway (nginx)** — `limit_req_zone` per endpoint. Context-aware (path, auth).
+3. **Application (Redis-backed)** — per-user, per-tenant, per-API-key quotas.
+
+Start in dry-run mode (log, don't block). Observe traffic, then enforce.
+
+### Logging Infrastructure
+
+- **Format:** Structured JSON with: timestamp (ISO 8601 UTC), level, service, correlation_id, event, message
+- **Stack:** Grafana Loki (cost-effective, K8s-native) or ELK (full-text search) or Datadog (managed all-in-one)
+- **Correlation IDs:** Generate UUID at entry point, propagate via `X-Correlation-ID` header through all services
+- **Levels:** ERROR (production), WARN (production), INFO (critical events only), DEBUG (dev/troubleshooting only)
+- **NEVER log:** passwords, tokens, API keys, credit card numbers, PII (emails — hash them)
+- **Retention:** 7-30 days hot, 30-90 days warm, months-years cold (compressed, encrypted)
+
+### Environment Management
+
+- **Parity:** staging mirrors production in structure, differs in size/cost
+- **Secrets:** dotenv for dev, vault/cloud secrets for staging+prod. Never commit secrets.
+- **Feature flags:** Unleash (open source) or LaunchDarkly (managed). Decouple deploy from release.
+- **Docker Compose:** base `docker-compose.yml` + env-specific overrides (`docker-compose.dev.yml`, `docker-compose.prod.yml`)
+
 ### Security Baseline
 - Secrets in environment variables or vault — NEVER in code
 - Pre-commit hooks scanning for secrets (git-secrets, detect-secrets)
@@ -105,6 +200,17 @@ Push to main
 - Container image scanning (Trivy)
 - HTTPS everywhere, HSTS headers
 - Principle of least privilege for all IAM roles
+
+### Infrastructure by Project Type
+
+| Type | Stack |
+|------|-------|
+| **Web app** | CDN → reverse proxy → app server → DB + Redis |
+| **API** | Edge WAF → API gateway (rate limiting) → LB → API servers → DB |
+| **Static site** | CI/CD → S3/Pages + CDN. No server. |
+| **Mobile backend** | API + push notifications (FCM/APNs) + file storage (S3 + presigned URLs) + CDN |
+| **CLI tool** | Distribution: npm/cargo/Homebrew/GitHub Releases. Update mechanism. No server (unless SaaS backend). |
+| **Game server** | Dedicated instances (not shared VMs) → regional edge (<50ms latency) → UDP for game traffic → matchmaking |
 
 ## What You CANNOT Do (Client Must Act)
 

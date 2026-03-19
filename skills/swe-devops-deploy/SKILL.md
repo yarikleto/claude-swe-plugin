@@ -83,12 +83,25 @@ Send **devops** with this brief:
 > **Backups:** {strategy — automated daily, retention period}
 > **Migrations:** {how schema changes are applied — e.g., Prisma migrate, Alembic}
 >
-> ## 5. Domain, CDN, SSL
-> **DNS:** {Cloudflare / Route53}
-> **CDN:** {Cloudflare / CloudFront / none for MVP}
-> **SSL:** {automatic via Cloudflare / Let's Encrypt + cert-manager}
+> ## 5. Reverse Proxy / Load Balancer
+> **Choice:** {none (PaaS handles it) / Caddy / nginx / Traefik — and why}
+> **Config:** {key settings — upstream blocks, WebSocket support if needed, proxy headers}
+> **Load balancing:** {not needed / round-robin / least-connections — and why}
 >
-> ## 6. Monitoring & Observability
+> ## 6. Caching Strategy
+> **CDN:** {Cloudflare / CloudFront / none for MVP}
+> **Browser caching:** {fingerprinted assets → immutable, HTML → no-cache}
+> **Proxy caching:** {none / nginx proxy_cache / Varnish — for what}
+> **Compression:** {brotli + gzip / pre-compressed at build time / CDN handles it}
+>
+> ## 7. Domain, SSL, Security Headers
+> **DNS:** {Cloudflare / Route53}
+> **SSL:** {automatic via Cloudflare / Let's Encrypt / Caddy auto-HTTPS}
+> **TLS:** {Intermediate profile — TLS 1.2 + 1.3, AEAD ciphers only}
+> **HSTS:** {yes, max-age=63072000}
+> **Rate limiting:** {Cloudflare edge rules / nginx limit_req / application-level — or "not needed for MVP"}
+>
+> ## 8. Monitoring & Observability
 > ### Day One (MVP)
 > - {Sentry for error tracking}
 > - {Health check endpoint at /health}
@@ -101,14 +114,14 @@ Send **devops** with this brief:
 > - {Metrics dashboard — Grafana}
 > - {Basic SLOs defined}
 >
-> ## 7. Security
+> ## 9. Security
 > - Secrets management: {env vars via {platform} / Vault}
 > - Pre-commit hooks: {detect-secrets / git-secrets}
 > - CI scanning: {Dependabot for deps, Trivy for containers}
 > - HTTPS: {forced everywhere, HSTS}
 > - IAM: {principle of least privilege — specifics}
 >
-> ## 8. Cost Estimate
+> ## 10. Cost Estimate
 > | Service | Monthly Cost | Notes |
 > |---------|-------------|-------|
 > | Hosting | ${N} | {details} |
@@ -120,7 +133,7 @@ Send **devops** with this brief:
 > ### Cost at 10x scale
 > {What changes and how much it costs}
 >
-> ## 9. Client Handoff Actions
+> ## 11. Client Handoff Actions
 > List everything the client must do themselves:
 >
 > | # | Action | Guide | Status |
@@ -130,7 +143,7 @@ Send **devops** with this brief:
 > | 3 | {Provide API keys} | `.claude/handoff/03-api-keys.md` | PENDING |
 > | ... | ... | ... | ... |
 >
-> ## 10. Not Yet Needed (and when to add)
+> ## 12. Not Yet Needed (and when to add)
 > | Feature | Add When | Estimated Effort |
 > |---------|----------|-----------------|
 > | Kubernetes | 20+ devs or 10+ microservices | 2-4 weeks |
