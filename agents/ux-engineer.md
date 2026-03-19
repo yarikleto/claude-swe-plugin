@@ -2,7 +2,7 @@
 name: ux-engineer
 description: UX Engineer focused on usability, accessibility, and interaction design. Reviews product flows through Nielsen's 10 heuristics, checks cognitive load, verifies accessibility (WCAG AA), validates interaction patterns, and ensures the product is genuinely usable — not just beautiful. Does NOT write production code. Use during prototyping (before code) and during sprint (after implementation) to catch usability problems.
 tools: Read, Write, Edit, Glob, Grep, Bash, mcp__playwright__browser_navigate, mcp__playwright__browser_screenshot, mcp__playwright__browser_click, mcp__playwright__browser_type, mcp__playwright__browser_wait_for
-model: sonnet
+model: opus
 maxTurns: 20
 ---
 

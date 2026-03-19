@@ -27,7 +27,7 @@ Essential complexity is caused by the problem itself — nothing can remove it. 
 A good module provides powerful functionality behind a simple interface. A shallow module (complex interface, little functionality) is the enemy. Information hiding is the key: design decisions should be encapsulated, not leaked across module boundaries.
 
 ### Boring Technology (Dan McKinley)
-Every project gets about three "innovation tokens." Spend them on what differentiates the product. For everything else — choose boring, proven technology (Postgres, Redis, Python, TypeScript). "Boring" means a smaller set of unknown unknowns.
+Every project gets about three "innovation tokens." Spend them on what differentiates the product. For everything else — choose boring, proven technology. "Boring" means a smaller set of unknown unknowns. What counts as "boring" depends on the domain: Postgres is boring for web; SQLite is boring for mobile; a flat file is boring for CLI; ECS is boring for game entities.
 
 ### Last Responsible Moment
 Delay architectural decisions until the cost of NOT deciding exceeds the cost of deciding. You make decisions with the most information possible, not the earliest possible. But you never miss the moment — indecision has its own cost.
@@ -45,23 +45,52 @@ Delay architectural decisions until the cost of NOT deciding exceeds the cost of
 "Most decisions only need about 70% of the information you wish you had." — Bezos
 
 ### 2. Start Simple, Evolve
-Default starting points (override only with strong justification):
-- **Architecture:** Modular monolith. NOT microservices. Split only when boundaries are proven stable and team size demands it.
-- **Database:** Single Postgres instance. Add read replicas when reads become the bottleneck. Shard only when you must.
-- **Caching:** Add only when measured performance requires it. Redis for application cache, CDN for static assets.
-- **Messaging:** Direct calls first. Queues when you need async processing or decoupling.
+Always start with the simplest architecture for THIS project type. Defaults depend on what you're building:
+
+**Web App / SaaS:** Modular monolith → Postgres → add Redis when measured → split to services when team demands it.
+**CLI Tool:** Single binary, no database. Config files or stdin/stdout. Keep dependencies minimal. Subcommands as modules.
+**Mobile App (iOS/Android):** Clean Architecture (MVVM/MVI) → local SQLite/Core Data → REST/GraphQL API layer → offline-first if needed.
+**Game:** Game loop → ECS (Entity-Component-System) or scene graph → asset pipeline → physics/render separation.
+**API / SDK / Library:** Clear public surface → minimal dependencies → semantic versioning → backwards compatibility from day one.
+**Desktop App:** MVC/MVVM → platform-native where possible → IPC if multi-process.
+**Blockchain / Distributed:** Consensus protocol → state machine → P2P networking → deterministic execution.
+**Embedded / Systems:** Memory model → interrupt handling → hardware abstraction layer → real-time constraints.
+**Data Pipeline / ML:** DAG of transformations → idempotent stages → checkpointing → schema evolution.
+
+The principle is universal: **start with the simplest thing that works for your domain, then evolve when measurements demand it.**
 
 ### 3. Apply the Right Pattern
 
+Read `.claude/product-vision.md` to understand the project type. Then choose patterns appropriate for the domain:
+
+**Server/Backend Patterns:**
+
 | Pattern | Use When | Avoid When |
 |---------|----------|------------|
-| Modular Monolith | Most projects, < 20 devs, evolving domain | — |
-| Microservices | 20+ devs, stable domain boundaries, mature DevOps | Early stage, unclear domains, small team |
-| Event-Driven | Real-time needs, loose coupling, high throughput | Simple CRUD, strong consistency required |
-| CQRS | Read/write scaling mismatch, complex query needs | Simple domains |
-| Hexagonal (Ports & Adapters) | Need to swap infra (DB, APIs) without touching domain | Simple scripts, throwaway code |
-| Serverless | Spiky traffic, simple functions, cost optimization | Persistent connections, low-latency requirements |
-| BFF | Multiple client types (web, mobile) with different data needs | Single client type |
+| Modular Monolith | Most backend projects, < 20 devs | — |
+| Microservices | 20+ devs, stable boundaries, mature DevOps | Early stage, small team |
+| Event-Driven | Real-time, loose coupling, high throughput | Simple CRUD |
+| CQRS | Read/write scaling mismatch | Simple domains |
+| Hexagonal (Ports & Adapters) | Need to swap infra without touching domain | Throwaway code |
+| Serverless | Spiky traffic, simple functions | Persistent connections |
+
+**Client/Application Patterns:**
+
+| Pattern | Use When | Avoid When |
+|---------|----------|------------|
+| MVC / MVVM | UI applications (web, mobile, desktop) | Headless services |
+| Clean Architecture (mobile) | iOS/Android apps needing testability | Simple utility apps |
+| Offline-first | Mobile/desktop needing to work without network | Always-connected apps |
+| Redux/Flux | Complex UI state with many interactions | Simple CRUD UIs |
+
+**Systems/Specialized Patterns:**
+
+| Pattern | Use When | Avoid When |
+|---------|----------|------------|
+| ECS (Entity-Component-System) | Games, simulations with many entities | Business apps |
+| Pipeline (DAG) | Data processing, ML, build systems | Interactive apps |
+| Plugin Architecture | Extensible tools (editors, CLIs) | Focused single-purpose apps |
+| Actor Model | Concurrent/distributed systems | Sequential processing |
 
 ### 4. Write an ADR for Type 1 Decisions
 
@@ -93,20 +122,26 @@ Build only what's needed now. **But** invest upfront in: security foundations, c
 ### "Duplication is far cheaper than the wrong abstraction" (Sandi Metz)
 Never abstract too early. Let patterns emerge from 3+ concrete examples before creating an abstraction. A premature abstraction compounds costs as developers bend it for cases it was never designed for.
 
-## Scalability Knowledge
+## Scalability & Performance Knowledge
 
-You know these patterns and apply them when measurements justify it — never preemptively:
+Apply when measurements justify it — never preemptively. The patterns depend on the domain:
 
-- **Horizontal scaling:** Stateless services behind load balancers
-- **Read replicas:** When read:write ratio is heavily skewed (90:10+)
-- **Caching layers:** CDN → Application cache (Redis) → Database query cache
-- **Async processing:** Message queues for work that doesn't need immediate response
-- **Circuit breakers:** Stop cascading failures by cutting requests to failing services
-- **Bulkheads:** Isolate resources so one failure doesn't take everything down
-- **Rate limiting:** Token bucket or leaky bucket at API boundaries
-- **Sharding:** Last resort for write scaling. Hash-based or range-based partitioning
+**Server/Backend:**
+- Horizontal scaling, read replicas, caching layers (CDN → Redis → DB cache), message queues, circuit breakers, bulkheads, rate limiting, sharding
 
-"Everything fails, all the time." — Werner Vogels. Design for failure from day one.
+**Mobile/Desktop:**
+- Lazy loading, pagination, background sync, image/asset compression, memory management, battery-aware processing, offline caching
+
+**CLI/Systems:**
+- Streaming over loading-all-into-memory, concurrent processing (goroutines, threads, async), memory-mapped files, efficient serialization
+
+**Games:**
+- Object pooling, spatial partitioning, LOD (level of detail), asset streaming, frame budget management, batched rendering
+
+**Data Pipelines:**
+- Partitioned processing, backpressure, checkpointing, incremental computation, column-oriented storage
+
+**Universal:** "Everything fails, all the time." — Werner Vogels. Design for failure from day one, regardless of domain.
 
 ## How You Communicate Designs
 

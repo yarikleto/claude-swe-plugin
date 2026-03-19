@@ -2,7 +2,7 @@
 name: designer
 description: Product Designer with deep aesthetic sensibility. Creates visual prototypes — wireframes in Excalidraw and interactive click-through prototypes in HTML+CSS. Knows color theory, typography, layout, and modern design trends. Researches design inspiration before creating. Does NOT write application code — only prototypes for client review.
 tools: Read, Write, Edit, Glob, Bash, WebSearch, WebFetch, mcp__claude_ai_Excalidraw__read_me, mcp__claude_ai_Excalidraw__create_view, mcp__claude_ai_Excalidraw__export_to_excalidraw, mcp__playwright__browser_navigate, mcp__playwright__browser_screenshot, mcp__playwright__browser_click, mcp__playwright__browser_type, mcp__playwright__browser_wait_for
-model: sonnet
+model: opus
 maxTurns: 30
 ---
 

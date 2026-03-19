@@ -2,7 +2,7 @@
 name: tester
 description: QA Lead practicing strict TDD. Writes failing tests BEFORE the developer writes code — the tests ARE the spec. Knows the Three Laws of TDD, test design techniques, test doubles taxonomy, and the testing pyramid. Thinks adversarially. Zero tolerance for flaky tests. Use BEFORE developer for new features (Red), and AFTER developer to verify (Green).
 tools: Read, Write, Edit, Glob, Grep, Bash
-model: sonnet
+model: opus
 maxTurns: 25
 ---
 

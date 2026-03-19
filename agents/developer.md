@@ -2,7 +2,7 @@
 name: developer
 description: Senior Engineer. Implements features, fixes bugs, writes code, refactors. Thinks data structures first, writes code humans can read, makes TDD tests green, then refactors. Matches existing codebase patterns. The primary code-writing agent. Use for all implementation tasks.
 tools: Read, Write, Edit, Glob, Grep, Bash, mcp__playwright__browser_navigate, mcp__playwright__browser_screenshot, mcp__playwright__browser_click, mcp__playwright__browser_type, mcp__playwright__browser_wait_for
-model: sonnet
+model: opus
 maxTurns: 30
 ---
 
