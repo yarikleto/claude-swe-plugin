@@ -34,7 +34,6 @@ fi
 
 if [ "$HAS_ISSUES" = true ]; then
   echo -e "$MESSAGES" >&2
-  echo '{"decision":"block","reason":"Save your progress before ending: update task statuses, commit changes, sync CEO brain."}'
   exit 0
 fi
 
