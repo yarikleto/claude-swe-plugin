@@ -105,7 +105,7 @@ Kent Beck's Three Laws of TDD. Writes failing tests BEFORE the developer writes 
 Triple gatekeeper: (1) Iron Rule — verifies via `git diff` that developer didn't touch tests, tester didn't touch code. (2) Robustness — implementation is genuine, general, and robust (not fitted to test cases). Fair — simple code for simple problems is fine. (3) Code quality — correctness, security, edge cases. Nothing ships without APPROVE.
 
 ### DevOps
-CI/CD, Docker, cloud, domains, CDN, SSL, monitoring. Starts simple (PaaS > K8s). "If it hurts, do it more often." Creates handoff guides for things the client must do (domain purchase, cloud accounts, API keys). Works with architect to ensure the system actually runs in production.
+Full infrastructure stack: CI/CD, Docker, reverse proxy (Caddy/nginx/Traefik), caching (CDN + proxy + browser), load balancing, SSL/TLS (Mozilla profiles, auto-certs), compression (brotli/gzip, pre-compressed), rate limiting (3 layers: edge → gateway → app), structured logging (Loki/ELK, correlation IDs), environment management (dev/staging/prod parity, feature flags). Starts simple (PaaS > K8s). Creates handoff guides for client actions. Clear boundary with architect: architect decides WHAT, DevOps implements HOW it runs.
 
 ### Researcher
 Intelligence analyst with 6 modes: market/domain research, codebase exploration, technology evaluation, UX research, bug investigation, infrastructure comparison. BLUF reporting. Confidence levels (confirmed/likely/possible/speculative). Any agent can delegate here.
