@@ -228,8 +228,17 @@ Do NOT send back through full reviewer cycle for visual/UX-only fixes.
 
 ## Step 7: Mark DONE
 
-Update task status to `DONE` in `.claude/tasks.md`.
-Check all acceptance criteria, visual criteria, and UX criteria checkboxes.
+Open `.claude/tasks.md` and make these edits to the current task:
+
+1. **Change status:** Replace `**Status:** \`IN_REVIEW\`` with `**Status:** \`DONE\``
+2. **Mark all checkboxes as complete:** Replace every `- [ ]` with `- [x]` for:
+   - All acceptance criteria
+   - All visual criteria (if any)
+   - All UX criteria (if any)
+3. **Mark Definition of Done checkboxes** for this task as `- [x]`
+
+Every `[ ]` under the current task should become `[x]` — no unchecked boxes should remain on a DONE task.
+
 Announce:
 > "TASK-{N} done. {Brief summary of what was built.}"
 
