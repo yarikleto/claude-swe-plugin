@@ -214,6 +214,8 @@ Send **reviewer** with this brief:
 > 7. Review production code for correctness, security, edge cases
 > 8. Review test code for coverage quality and test design
 >
+> **If APPROVE:** Mark every verified criterion as `[x]` in `.claude/tasks/TASK-{N}.md` (acceptance criteria, visual criteria, UX criteria). Only mark what you actually verified.
+>
 > Return your verdict: APPROVE, CHANGES REQUESTED, or BLOCKER.
 
 ## Step 6: Design & UX review (tasks with user-facing interface)
@@ -279,16 +281,22 @@ Do NOT send back through full reviewer cycle for visual/UX-only fixes.
 
 ## Step 7: Mark DONE
 
-Open `.claude/tasks/TASK-{N}.md` and make these edits:
+The **reviewer** already marked individual criteria checkboxes `[x]` when they approved. You just need to:
 
-1. **Change status:** Replace `**Status:** \`IN_REVIEW\`` with `**Status:** \`DONE\``
-2. **Mark all checkboxes as complete:** Replace every `- [ ]` with `- [x]` for:
-   - All acceptance criteria
-   - All visual criteria (if any)
-   - All UX criteria (if any)
-3. **Mark Definition of Done checkboxes** for this task as `- [x]`
+1. **Change status** in `.claude/tasks/TASK-{N}.md`:
+```
+old: **Status:** `IN_REVIEW`
+new: **Status:** `DONE`
+```
 
-Every `[ ]` under the current task should become `[x]` — no unchecked boxes should remain on a DONE task.
+2. **Self-check:** Read the file and verify all checkboxes are `[x]`. If the reviewer missed any (they shouldn't on an APPROVE), mark the remaining ones yourself using `replace_all: true`:
+```
+old: - [ ]
+new: - [x]
+replace_all: true
+```
+
+Zero `[ ]` should remain on a DONE task.
 
 Announce:
 > "TASK-{N} done. {Brief summary of what was built.}"
