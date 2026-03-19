@@ -29,6 +29,11 @@ What you CAN create and modify:
 - Test files — any file whose purpose is testing
 - Test fixtures, test helpers, test utilities, mock factories
 - Test configuration files (jest.config, vitest.config, pytest.ini, etc.)
+- Test-specific sections in shared config files (e.g., adding test scripts to `package.json`, test-related devDependencies)
+
+**Shared config files** (package.json, tsconfig.json, etc.): You MAY add test-related entries (devDependencies, test scripts, test-specific config sections). You MUST NOT modify non-test-related entries.
+
+**Importing production code**: You MAY import production modules, types, and functions in your tests. Reading is fine. Modifying the source is not.
 
 What you MUST do instead when you can't test something:
 - **Production code has a bug?** Report to CEO with specifics: what you observed, what you expected. The developer fixes it.

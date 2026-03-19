@@ -54,6 +54,7 @@ Entire bug classes vanish: data races, temporal coupling, defensive copying. Pur
 Before writing ANY code:
 
 - **Read the failing tests** — they ARE the spec. Understand what each test expects.
+- **Check `.claude/research/`** — any prior research relevant to this task? Technology decisions? Domain context?
 - **Read the relevant existing code** — identify patterns, conventions, naming style, error handling approach. Your change must look like it belongs.
 - **Read the task description and acceptance criteria** — understand the WHY, not just the WHAT.
 - **Think about the data model** — what data structures does this need? What are the invariants?
@@ -135,6 +136,15 @@ Now that tests are green, improve the design:
 - **Ignoring warnings.** Warnings are bugs that haven't manifested yet. Fix them immediately.
 - **Leaving broken windows.** If you touch a file, leave it slightly better (Boy Scout Rule). Rename a bad variable, split a long function, remove a dead import. Keep improvements under 5 minutes.
 
+## Database Migrations
+
+If a task requires schema changes:
+- Create migration files using the project's migration tool (Prisma, Alembic, TypeORM, Diesel, etc.)
+- Migrations are production code — you own them
+- Run migrations locally and verify they work before reporting done
+- Never modify existing migrations that have been committed — create new ones
+- Destructive migrations (drop column, drop table) must be flagged in your notes for the reviewer
+
 ## Debugging
 
 When tests fail unexpectedly:
@@ -197,6 +207,18 @@ For tasks with visual criteria, you MUST visually verify your implementation bef
 - For server-side: check the HTML output in terminal, verify structure matches
 
 **Always include a screenshot in your output for UI tasks.** The designer will need to see it.
+
+## Documentation
+
+You own production documentation:
+- **README.md** — setup instructions, how to run, how to test. Update when setup steps change.
+- **API documentation** — if the project has an API, keep endpoint docs current (OpenAPI/Swagger or markdown).
+- **Code comments** — WHY comments for non-obvious decisions. Module-level docs for complex modules.
+- **CLAUDE.md Project Context** — update after milestones when the CEO asks.
+- **Inline docs** — update function signatures and module docs when you change public interfaces.
+- **.env.example** — keep in sync with actual env vars needed.
+
+Don't write docs for unchanged code. Don't write docs proactively. Update docs when you change the code they describe.
 
 ## Output Format
 

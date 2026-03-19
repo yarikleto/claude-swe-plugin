@@ -19,6 +19,17 @@ Read these files:
 - `.claude/design-spec.md` — design tokens, components, screen map with visual criteria
 - `.claude/ceo-brain.md` — your strategic knowledge
 
+## Step 1.5: Bootstrap (first sprint only)
+
+On the VERY FIRST sprint, before any task cycle, handle project scaffolding:
+
+1. Send **developer** to create the project skeleton: `package.json` / `Cargo.toml` / `go.mod`, directory structure, basic configs, `.gitignore`, `.env.example`. This is `Type: setup` — no tests needed.
+2. Send **tester** to set up the test infrastructure: install test framework, create test config (`jest.config`, `vitest.config`, `pytest.ini`, etc.), create test directory structure, verify the test runner works with a trivial passing test.
+3. Send **devops** to create `Dockerfile`, `docker-compose.yml`, CI pipeline (`.github/workflows/ci.yml`), health check stub.
+4. **Commit all three as a single "bootstrap" commit.** This is the only time the Iron Rule is relaxed — both developer and tester touch config files to set up their respective environments.
+
+After bootstrap: the project builds, the test runner runs, CI works. Now the normal cycle begins.
+
 ## Step 2: Pick the next task
 
 Scan `.claude/tasks.md` for the next task to execute:
@@ -32,6 +43,20 @@ Scan `.claude/tasks.md` for the next task to execute:
 Announce which task you're starting:
 > "Starting TASK-{N}: {name}. Size: {S/M/L}."
 
+## Step 2.5: Interface contract (for tasks introducing new modules)
+
+If the task creates NEW functions, modules, or APIs that don't exist yet, the tester needs to know the interface before writing tests. Send **architect** (quick, 1-2 turns) to define the contract:
+
+> For TASK-{N}, define the public interface contract:
+> - Function/method signatures (name, parameters, return type)
+> - Module/file paths where they will live
+> - Key types/interfaces involved
+> - Error types and codes
+>
+> Keep it minimal — just enough for the tester to write tests against. Save to `.claude/contracts/TASK-{N}.md`.
+
+**Skip this step** if the task modifies existing code (the existing signatures ARE the contract).
+
 ## Step 3: Tester writes tests (Red)
 
 Update task status to `TESTING` in `.claude/tasks.md`.
@@ -43,22 +68,26 @@ Send **tester** with this brief:
 > - Description: {description}
 > - Acceptance Criteria: {criteria}
 >
+> If there's an interface contract at `.claude/contracts/TASK-{N}.md`, write tests against those signatures.
+> If modifying existing code, read the current code to understand existing interfaces.
 > Also read `.claude/test-plan.md` for test framework, conventions, and file structure.
 >
 > Write failing tests that encode ALL acceptance criteria. Follow TDD — every criterion must have at least one test. Apply your test design techniques (equivalence partitioning, boundary values, error guessing).
 >
-> Remember: you MUST NOT touch any production code. Only test files.
+> You MAY import production code types and modules in your tests (reading is fine).
+> You MAY create test-only helpers, factories, and fixtures.
+> You MUST NOT modify any production source files.
 >
-> Run the tests — they must ALL fail (Red). If any pass, investigate why.
+> Run the tests — they should fail (Red). Compilation errors count as failing.
 
-When tester returns, verify:
-- Tests were written and they all fail
-- No production code was touched
-- Acceptance criteria are covered
+When tester returns, verify tests were written. **Commit tester's work:**
+```
+git add -A && git commit -m "test(TASK-{N}): failing tests — {brief description}"
+```
 
 Update task status to `READY` in `.claude/tasks.md`.
 
-**Skip this step** for tasks marked `Type: setup` (scaffolding with no behavior to test).
+**Skip this step** for tasks marked `Type: setup`, `Type: refactor`, or `Type: performance`.
 
 ## Step 4: Developer implements (Green)
 
@@ -84,11 +113,35 @@ Send **developer** with this brief:
 >
 > Run the full test suite after implementation — new tests AND existing tests must all pass.
 
-When developer returns, verify:
-- Developer reports all tests passing
-- No test files were touched
+When developer returns, verify tests pass. **Commit developer's work:**
+```
+git add -A && git commit -m "feat(TASK-{N}): implement — {brief description}"
+```
 
 Update task status to `IN_REVIEW` in `.claude/tasks.md`.
+
+**Now the reviewer can `git diff` between the two commits to see exactly what each agent touched.**
+
+### Step 4a: Test dispute protocol
+
+If the developer reports they CANNOT make a test green because the test is wrong (not the implementation):
+
+1. Developer explains specifically: which test, what it expects, why it's incorrect
+2. **Do NOT escalate to the client.** This is an internal issue.
+3. Send **tester** to investigate: "Developer says test X is wrong because Y. Verify and fix if needed."
+4. If tester agrees and fixes the test → commit → status back to `READY` → developer continues
+5. If tester disagrees → send **architect** to arbitrate based on system design → winner implements the decision
+6. Max 1 dispute round per task. If still unresolved → circuit breaker.
+
+### Special task types
+
+**`Type: setup`** (scaffolding): Developer only → reviewer. No tester, no designer/UX.
+
+**`Type: refactor`**: Developer refactors → reviewer verifies same behavior + better structure. No tester writes new tests. Tester runs full regression suite AFTER reviewer approves. Acceptance criteria: structural (measurable: reduced duplication, extracted module, etc.) + "all existing tests still pass."
+
+**`Type: performance`**: Researcher profiles first (identify bottleneck) → developer optimizes → tester runs benchmarks before/after. Acceptance criteria: measurable targets (e.g., "p95 response time < 200ms"). Tester creates benchmark tests, not unit tests.
+
+**`Type: hotfix`** (production emergency): Fast-track: developer investigates + fixes → reviewer does quick review (correctness only, skip robustness check) → deploy immediately. Tester adds regression test AFTER the fix is live. The full cycle resumes for non-emergencies.
 
 ## Step 5: Reviewer verifies
 
@@ -206,12 +259,17 @@ Then re-run the full cycle for this task from Step 3.
 After completing all tasks in a milestone:
 
 1. Run the FULL test suite one more time
-2. Update `.claude/ceo-brain.md`:
+2. Send **developer** to update `CLAUDE.md` Project Context with actual values:
+   - Overview, Tech Stack, Project Structure — from what was actually built
+   - Commands — actual commands that work now (`npm run dev`, `npm test`, etc.)
+   - Coding Conventions — patterns that emerged during implementation
+3. Send **devops** (if Milestone 0 just completed) to set up staging deployment and verify CI pipeline works end-to-end
+4. Update `.claude/ceo-brain.md`:
    - "Current State" — milestone {N} complete
    - "Strategic Priorities" — next milestone
    - "Key Decisions Log" — milestone {N} done, {summary}
-3. Update `CLAUDE.md` Project Context if commands/structure changed
-4. Report to the client:
+5. Commit everything: `git commit -m "milestone({N}): complete — {summary}"`
+6. Report to the client:
    > "Milestone {N} complete: {what the user can now do}. {N} tasks done. All tests green.
    > Next up: Milestone {N+1} — {goal}."
 
