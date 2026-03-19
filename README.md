@@ -27,46 +27,33 @@ The CEO doesn't write code. The developer doesn't write tests. The tester doesn'
 
 ## Installation
 
-### From GitHub Marketplace (recommended)
+All commands below run **inside Claude Code** (not in your shell).
+
+### From GitHub (recommended)
 
 ```bash
-# Add the marketplace
-/plugin marketplace add yarikleto/claude-swe-plugin
+# 1. Add the marketplace (one time)
+claude plugins marketplace add https://github.com/yarikleto/claude-swe-plugin
 
-# Install the plugin
-/plugin install claude-swe-plugin@yarikleto-claude-swe-plugin
+# 2. Install in your project
+cd your-project
+claude plugins install claude-swe-plugin --scope project
 ```
 
-Or use the interactive plugin manager:
-```
-/plugin
-# → Discover tab → find "claude-swe-plugin" → Install
-```
-
-### From GitHub (manual)
+### From local directory (development)
 
 ```bash
-# Clone the repo
-git clone https://github.com/yarikleto/claude-swe-plugin.git
-
-# Start Claude Code with the plugin loaded from local directory
 claude --plugin-dir /path/to/claude-swe-plugin
 ```
 
 ### Managing the plugin
 
 ```bash
-# Disable without uninstalling
-/plugin disable claude-swe-plugin@yarikleto-claude-swe-plugin
-
-# Re-enable
-/plugin enable claude-swe-plugin@yarikleto-claude-swe-plugin
-
 # Update to latest version
-/plugin update claude-swe-plugin@yarikleto-claude-swe-plugin
+claude plugins update claude-swe-plugin@claude-swe-marketplace --scope project
 
 # Uninstall
-/plugin uninstall claude-swe-plugin@yarikleto-claude-swe-plugin
+claude plugins uninstall claude-swe-plugin
 
 # Reload after local changes (dev mode)
 /reload-plugins

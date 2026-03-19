@@ -1,0 +1,16 @@
+{
+  "name": "claude-swe-marketplace",
+  "owner": {
+    "name": "yarikleto"
+  },
+  "plugins": [
+    {
+      "name": "claude-swe-plugin",
+      "description": "A full software engineering team inside Claude Code — CEO orchestrator + 8 specialized agents + 9 skills = from idea to production",
+      "source": {
+        "source": "github",
+        "repo": "yarikleto/claude-swe-plugin"
+      }
+    }
+  ]
+}
