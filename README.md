@@ -25,16 +25,58 @@ A Claude Code plugin that transforms Claude into a full software engineering org
 
 The CEO doesn't write code. The developer doesn't write tests. The tester doesn't touch production code. The designer creates prototypes, not implementations. Everyone has a lane, and the reviewer makes sure nobody crosses it.
 
-## Quick Start
+## Installation
+
+### From GitHub Marketplace (recommended)
 
 ```bash
-# Clone the plugin
-git clone https://github.com/your-username/claude-swe-plugin.git
+# Add the marketplace
+/plugin marketplace add yarikleto/claude-swe-plugin
 
-# Start Claude Code with the plugin
+# Install the plugin
+/plugin install claude-swe-plugin@yarikleto-claude-swe-plugin
+```
+
+Or use the interactive plugin manager:
+```
+/plugin
+# → Discover tab → find "claude-swe-plugin" → Install
+```
+
+### From GitHub (manual)
+
+```bash
+# Clone the repo
+git clone https://github.com/yarikleto/claude-swe-plugin.git
+
+# Start Claude Code with the plugin loaded from local directory
 claude --plugin-dir /path/to/claude-swe-plugin
+```
 
-# Kick off a new project
+### Managing the plugin
+
+```bash
+# Disable without uninstalling
+/plugin disable claude-swe-plugin@yarikleto-claude-swe-plugin
+
+# Re-enable
+/plugin enable claude-swe-plugin@yarikleto-claude-swe-plugin
+
+# Update to latest version
+/plugin update claude-swe-plugin@yarikleto-claude-swe-plugin
+
+# Uninstall
+/plugin uninstall claude-swe-plugin@yarikleto-claude-swe-plugin
+
+# Reload after local changes (dev mode)
+/reload-plugins
+```
+
+## Quick Start
+
+Once installed, kick off a new project:
+
+```bash
 /claude-swe-plugin:swe-init
 ```
 
