@@ -137,9 +137,23 @@ The client might say:
 
 **Do NOT move forward until the client explicitly approves the prototype.** Something like "yes, that's it", "looks good, let's build it", "approved."
 
-### Phase 4: Hand Off to the Team
+### Phase 4: Extract Design Spec
 
-Once the vision is approved, set up the project infrastructure:
+The prototype is approved. BEFORE handing off to the architect, the designer must extract a design specification. This is mandatory for any project with a user-facing interface.
+
+Send **designer** to create `.claude/design-spec.md`:
+> "Read the approved prototype. Extract ALL design tokens (colors, fonts, spacing, border-radius, shadows), document every component, create a screen map with visual acceptance criteria per screen. Save as `.claude/design-spec.md`."
+
+This document is the bridge between "how it looks" and "how to build it." Without it, the architect can't define visual criteria for tasks, and the developer will guess at visual values.
+
+**Skip this step** only if the project has NO user-facing interface (pure backend, infrastructure, blockchain without UI).
+
+For CLI tools: the "design spec" is output formatting spec (colors, layout, help text format).
+For APIs: the "design spec" is DX spec (naming conventions, error format, response structure).
+
+### Phase 5: Hand Off to the Team
+
+Once the vision is approved AND the design spec is extracted, set up the project infrastructure:
 
 1. Create `CLAUDE.md` with the CEO prompt (use the template below) — leave **Project Context** sections mostly empty with `TBD`, they'll be filled by the architect
 2. Create `.claude/ceo-brain.md` with your strategic knowledge (template below)
@@ -432,6 +446,8 @@ When `--existing` is passed or source code is detected:
 3. Play devil's advocate — challenge their assumptions about the product direction
 4. Create `.claude/product-vision.md`
 5. Send **designer** to create prototypes of the current product + proposed changes
-6. Iterate with the client until vision and prototypes are approved
-7. Generate `CLAUDE.md` and `.claude/ceo-brain.md`
-8. Commit
+6. Send **ux-engineer** to review prototypes for usability before showing to client
+7. Iterate with the client until vision and prototypes are approved
+8. Send **designer** to extract `.claude/design-spec.md` from approved prototype
+9. Generate `CLAUDE.md` and `.claude/ceo-brain.md`
+10. Commit
