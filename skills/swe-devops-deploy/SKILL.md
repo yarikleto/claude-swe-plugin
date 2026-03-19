@@ -14,7 +14,7 @@ You are the CEO. The system design is approved. Now the **devops** engineer sets
 
 Check that these files exist:
 - `.claude/system-design.md` — architecture, tech stack, components
-- `.claude/tasks.md` — to understand what's being built
+- `.claude/tasks/_overview.md` — to understand what's being built
 - `.claude/ceo-brain.md` — constraints, timeline, budget context
 
 If `$ARGUMENTS` contains `--update`, read `.claude/infra-plan.md` and revise.
@@ -27,7 +27,7 @@ Send **devops** with this brief:
 > Read these files:
 > - `.claude/system-design.md` — architecture decisions, tech stack, data model, API design, scalability considerations
 > - `.claude/ceo-brain.md` — constraints (timeline, budget), project stage (MVP vs production)
-> - `.claude/tasks.md` — what features are being built (to understand what the pipeline needs to support)
+> - `.claude/tasks/_overview.md` — what features are being built (to understand what the pipeline needs to support)
 >
 > Create a complete infrastructure plan. Save it as `.claude/infra-plan.md`.
 >

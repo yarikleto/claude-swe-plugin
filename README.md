@@ -250,7 +250,10 @@ claude-swe-plugin/
 ├── system-design.md          # Architecture, ADRs, data model, APIs
 ├── database-schema.md        # DB schema, ER diagram, migrations, indexes
 ├── infra-plan.md             # Infrastructure, CI/CD, costs
-├── tasks.md                  # Task breakdown with statuses
+├── tasks/                    # Task files (one per task)
+│   ├── _overview.md          # Milestones, critical path, Definition of Done
+│   ├── TASK-001.md           # Individual task files
+│   └── ...
 ├── test-plan.md              # Test strategy
 ├── prototypes/               # All prototype versions (never deleted)
 ├── handoff/                  # Client action guides (from DevOps)
@@ -269,7 +272,7 @@ claude-swe-plugin/
 | **Iron Rule Enforcer** | `PreToolUse` (Edit\|Write) | **Mechanically BLOCKS** developer from editing test files and tester from editing production files. Uses `agent_type` to identify who's editing. Language-agnostic: covers JS/TS, Python, Ruby, Go, Rust, Java, C/C++, Swift, Dart, Elixir, PHP, C#, Haskell, Lua, Shell, and more. |
 | **Auto-Formatter** | `PostToolUse` (Edit\|Write) | Runs the project's formatter after every code edit. Tries prettier/biome first, falls back to language-specific tools (gofmt, rustfmt, black, rubocop, clang-format, etc.). Async, non-blocking. |
 | **Save Progress Guard** | `Stop` | **Blocks session end** if tasks are still `IN_PROGRESS`, uncommitted changes exist, or CEO brain is stale. Forces saving work before leaving. |
-| **Post-Commit Reminder** | `PostToolUse` (Bash) | After `git commit`, reminds to update task status in `.claude/tasks.md`. |
+| **Post-Commit Reminder** | `PostToolUse` (Bash) | After `git commit`, reminds to update task status in `.claude/tasks/`. |
 
 The Iron Rule hook is the most important — it provides **mechanical enforcement**, not just prompt-based rules. Even if an agent "forgets" the rule, the hook physically blocks the write.
 

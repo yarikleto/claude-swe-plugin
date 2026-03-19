@@ -18,7 +18,7 @@ Check that these files exist:
 - `.claude/design-spec.md` — the design specification (tokens, components, screens)
 - `.claude/ceo-brain.md` — CEO knowledge base
 
-If `$ARGUMENTS` contains `--update`, read `.claude/tasks.md` first — architect revises, not starts from scratch.
+If `$ARGUMENTS` contains `--update`, read `.claude/tasks/_overview.md` and relevant task files first — architect revises, not starts from scratch.
 
 ## Step 2: Brief the architect
 
@@ -31,7 +31,7 @@ Send **architect** with this brief:
 > - `.claude/prototypes/README.md` — find the latest approved prototype
 > - The latest prototype HTML file — understand the actual screens and interactions
 >
-> Produce a complete task breakdown. Save it as `.claude/tasks.md`.
+> Produce a complete task breakdown. Save it as individual files in `.claude/tasks/` — one file per task (see output format below).
 >
 > ## How to Decompose
 >
@@ -120,7 +120,9 @@ Send **architect** with this brief:
 >
 > ## Output Format
 >
-> The `.claude/tasks.md` document MUST follow this structure:
+> Save tasks as **individual files** in `.claude/tasks/` — one file per task. This keeps each file small and readable.
+>
+> ### File: `.claude/tasks/_overview.md`
 >
 > ````markdown
 > # Task Breakdown
@@ -167,56 +169,15 @@ Send **architect** with this brief:
 > ## Milestone 0: Walking Skeleton
 > > Goal: thinnest end-to-end slice proving the architecture works.
 > > Timeline: ~{N days}
->
-> ### TASK-001: {Project scaffolding}
-> **Status:** `TODO`
-> **Size:** S | **Type:** setup
-> **Depends on:** nothing
-> **Description:** {what to do}
-> **Acceptance Criteria:**
-> - [ ] {criterion}
-> - [ ] {criterion}
-> **Cycle:** developer only (no tests needed for scaffolding) → reviewer
->
-> ### TASK-002: {Data model foundation}
-> **Status:** `TODO`
-> **Size:** M | **Type:** vertical-slice
-> **Depends on:** TASK-001
-> **Screen:** {screen name from design-spec.md, or "none" for backend-only tasks}
-> **Description:** {what to do}
-> **Acceptance Criteria:**
-> - [ ] {functional criterion}
-> **Visual Criteria:** {from design-spec.md screen section, or "N/A"}
-> - [ ] {visual criterion, e.g. "Card has shadow-sm, radius-lg, hover:shadow-md"}
-> **Cycle:** tester (Red) → developer (Green) → reviewer (verify) → designer (visual check, if UI task) → `DONE`
->
-> ### TASK-003: {First end-to-end flow}
-> **Status:** `TODO`
-> ...
->
-> ---
+> > Tasks: TASK-001, TASK-002, TASK-003, ...
 >
 > ## Milestone 1: {Core Feature Name}
 > > Goal: {what the user can do after this milestone}
 > > Timeline: ~{N days}
->
-> ### TASK-0XX: ...
->
-> ---
+> > Tasks: TASK-0XX, TASK-0XX, ...
 >
 > ## Milestone 2: {Next Feature}
-> ...
->
-> ---
->
-> ## Spikes (research tasks)
->
-> ### SPIKE-001: {Unknown to investigate}
-> **Status:** `TODO`
-> **Size:** S | **Timebox:** {N hours}
-> **Question:** {what we need to find out}
-> **Deliverable:** {decision / proof of concept / updated estimates}
-> **Cycle:** researcher → CEO decision
+> > ...
 >
 > ---
 >
@@ -235,7 +196,53 @@ Send **architect** with this brief:
 > - ~TASK-0XX: ...
 > ````
 >
+> ### File: `.claude/tasks/TASK-001.md` (one file per task)
+>
+> ````markdown
+> # TASK-001: {Project scaffolding}
+> **Milestone:** 0 — Walking Skeleton
+> **Status:** `TODO`
+> **Size:** S | **Type:** setup
+> **Depends on:** nothing
+> **Description:** {what to do}
+> **Acceptance Criteria:**
+> - [ ] {criterion}
+> - [ ] {criterion}
+> **Cycle:** developer only (no tests needed for scaffolding) → reviewer
+> ````
+>
+> ### File: `.claude/tasks/TASK-002.md`
+>
+> ````markdown
+> # TASK-002: {Data model foundation}
+> **Milestone:** 0 — Walking Skeleton
+> **Status:** `TODO`
+> **Size:** M | **Type:** vertical-slice
+> **Depends on:** TASK-001
+> **Screen:** {screen name from design-spec.md, or "none" for backend-only tasks}
+> **Description:** {what to do}
+> **Acceptance Criteria:**
+> - [ ] {functional criterion}
+> **Visual Criteria:** {from design-spec.md screen section, or "N/A"}
+> - [ ] {visual criterion, e.g. "Card has shadow-sm, radius-lg, hover:shadow-md"}
+> **Cycle:** tester (Red) → developer (Green) → reviewer (verify) → designer (visual check, if UI task) → `DONE`
+> ````
+>
+> ### File: `.claude/tasks/SPIKE-001.md`
+>
+> ````markdown
+> # SPIKE-001: {Unknown to investigate}
+> **Milestone:** Spikes
+> **Status:** `TODO`
+> **Size:** S | **Timebox:** {N hours}
+> **Question:** {what we need to find out}
+> **Deliverable:** {decision / proof of concept / updated estimates}
+> **Cycle:** researcher → CEO decision
+> ````
+>
 > **Rules:**
+> - One file per task in `.claude/tasks/`. File name = task ID: `TASK-001.md`, `SPIKE-001.md`.
+> - Overview goes in `_overview.md` — milestones, critical path, parallelization, Definition of Done.
 > - Walking skeleton is ALWAYS Milestone 0. No exceptions.
 > - Every task is a vertical slice unless it's scaffolding or infrastructure.
 > - No task larger than L (3 days). Split or spike.

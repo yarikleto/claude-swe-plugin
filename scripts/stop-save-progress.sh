@@ -2,16 +2,16 @@
 # Remind to save progress before session ends
 # Checks if there are in-progress tasks or uncommitted changes
 
-TASKS_FILE=".claude/tasks.md"
+TASKS_DIR=".claude/tasks"
 HAS_ISSUES=false
 MESSAGES=""
 
 # Check for in-progress tasks
-if [ -f "$TASKS_FILE" ]; then
-  IN_PROGRESS=$(grep -c '`IN_PROGRESS`\|`TESTING`\|`IN_REVIEW`\|`READY`' "$TASKS_FILE" 2>/dev/null || echo "0")
+if [ -d "$TASKS_DIR" ]; then
+  IN_PROGRESS=$(grep -rl '`IN_PROGRESS`\|`TESTING`\|`IN_REVIEW`\|`READY`' "$TASKS_DIR" 2>/dev/null | wc -l | tr -d ' ')
   if [ "$IN_PROGRESS" -gt 0 ]; then
     HAS_ISSUES=true
-    MESSAGES="${MESSAGES}WARNING: $IN_PROGRESS task(s) still in progress — update their status in .claude/tasks.md before ending.\n"
+    MESSAGES="${MESSAGES}WARNING: $IN_PROGRESS task(s) still in progress — update their status in .claude/tasks/ before ending.\n"
   fi
 fi
 

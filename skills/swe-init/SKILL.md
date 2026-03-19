@@ -337,7 +337,10 @@ Every significant decision, spec, and plan is saved in `.claude/` for history. N
 ├── system-design.md           # Architecture, ADRs, data model, APIs
 ├── database-schema.md         # Database schema, ER diagram, migrations, indexes
 ├── infra-plan.md              # Infrastructure, CI/CD, hosting, costs
-├── tasks.md                   # Task breakdown with statuses
+├── tasks/                     # Task files (one per task)
+│   ├── _overview.md           # Milestones, critical path, Definition of Done
+│   ├── TASK-001.md            # Individual task files
+│   └── ...
 ├── test-plan.md               # Test strategy document
 ├── prototypes/                # All prototype versions (never deleted)
 │   ├── wireframes/

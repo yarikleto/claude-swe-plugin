@@ -1,6 +1,6 @@
 ---
 name: swe-sprint
-description: CEO runs the task execution cycle — picks the next task, sends tester to write failing tests, developer to implement, reviewer to verify Iron Rule and quality. Updates task status in tasks.md. Repeats until milestone is complete. Use when ready to start building.
+description: CEO runs the task execution cycle — picks the next task, sends tester to write failing tests, developer to implement, reviewer to verify Iron Rule and quality. Updates task status in .claude/tasks/. Repeats until milestone is complete. Use when ready to start building.
 user-invocable: true
 allowed-tools: Read, Grep, Glob, Bash, Write, Edit, Agent
 argument-hint: "[task-id to start from, e.g. TASK-003] [--milestone N to run a full milestone]"
@@ -13,7 +13,7 @@ You are the CEO. The plans are approved, the tests strategy is set. Now you BUIL
 ## Step 1: Load context
 
 Read these files:
-- `.claude/tasks.md` — the task list with statuses
+- `.claude/tasks/_overview.md` — milestones, critical path, Definition of Done
 - `.claude/test-plan.md` — the test strategy (frameworks, conventions)
 - `.claude/system-design.md` — architecture context
 - `.claude/design-spec.md` — design tokens, components, screen map with visual criteria
@@ -32,11 +32,11 @@ After bootstrap: the project builds, the test runner runs, CI works. Now the nor
 
 ## Step 2: Pick the next task
 
-Scan `.claude/tasks.md` for the next task to execute:
+Use `Grep` to scan `.claude/tasks/` for task statuses (`**Status:**`). Find the next task to execute:
 
-- If `$ARGUMENTS` contains a task ID (e.g., `TASK-003`), start there
-- If `$ARGUMENTS` contains `--milestone N`, run all tasks in that milestone sequentially
-- Otherwise, find the first task with status `TODO` whose dependencies are all `DONE`
+- If `$ARGUMENTS` contains a task ID (e.g., `TASK-003`), read `.claude/tasks/TASK-003.md`
+- If `$ARGUMENTS` contains `--milestone N`, read `_overview.md` to find milestone tasks, then run them sequentially
+- Otherwise, find the first task file with status `TODO` whose dependencies are all `DONE`
 - If a task is `BLOCKED`, skip it and explain why
 - If a task is `CHANGES_REQUESTED`, resume the fix cycle (see Step 6)
 
@@ -59,14 +59,13 @@ If the task creates NEW functions, modules, or APIs that don't exist yet, the te
 
 ## Step 3: Tester writes tests (Red)
 
-Update task status to `TESTING` in `.claude/tasks.md`.
+Update task status to `TESTING` in `.claude/tasks/TASK-{N}.md`.
 
 Send **tester** with this brief:
 
-> Read the task from `.claude/tasks.md`:
-> - Task: TASK-{N}
-> - Description: {description}
-> - Acceptance Criteria: {criteria}
+> Task: TASK-{N}
+> Description: {paste the task description here}
+> Acceptance Criteria: {paste the acceptance criteria here}
 >
 > If there's an interface contract at `.claude/contracts/TASK-{N}.md`, write tests against those signatures.
 > If modifying existing code, read the current code to understand existing interfaces.
@@ -85,21 +84,20 @@ When tester returns, verify tests were written. **Commit tester's work:**
 git add -A && git commit -m "test(TASK-{N}): failing tests — {brief description}"
 ```
 
-Update task status to `READY` in `.claude/tasks.md`.
+Update task status to `READY` in `.claude/tasks/TASK-{N}.md`.
 
 **Skip this step** for tasks marked `Type: setup`, `Type: refactor`, or `Type: performance`.
 
 ## Step 4: Developer implements (Green)
 
-Update task status to `IN_PROGRESS` in `.claude/tasks.md`.
+Update task status to `IN_PROGRESS` in `.claude/tasks/TASK-{N}.md`.
 
 Send **developer** with this brief:
 
-> Read the task from `.claude/tasks.md`:
-> - Task: TASK-{N}
-> - Description: {description}
-> - Acceptance Criteria: {criteria}
-> - Visual Criteria: {visual criteria, if any}
+> Task: TASK-{N}
+> Description: {paste the task description here}
+> Acceptance Criteria: {paste the acceptance criteria here}
+> Visual Criteria: {paste visual criteria here, if any}
 >
 > The tester has written failing tests. Read them to understand what "done" means.
 > Read the relevant system design sections in `.claude/system-design.md`.
@@ -118,7 +116,7 @@ When developer returns, verify tests pass. **Commit developer's work:**
 git add -A && git commit -m "feat(TASK-{N}): implement — {brief description}"
 ```
 
-Update task status to `IN_REVIEW` in `.claude/tasks.md`.
+Update task status to `IN_REVIEW` in `.claude/tasks/TASK-{N}.md`.
 
 **Now the reviewer can `git diff` between the two commits to see exactly what each agent touched.**
 
@@ -149,7 +147,7 @@ Send **reviewer** with this brief:
 
 > Review the work done for TASK-{N}.
 >
-> Read `.claude/tasks.md` for the task's acceptance criteria.
+> Read `.claude/tasks/TASK-{N}.md` for the acceptance criteria.
 >
 > You MUST check in this order:
 >
@@ -179,7 +177,7 @@ For tasks with NO user-facing interface, skip to Step 7.
 
 ### 6a: Designer — visual fidelity
 
-> Read the task's visual criteria from `.claude/tasks.md` for TASK-{N}.
+> Read `.claude/tasks/TASK-{N}.md` for the visual criteria.
 > Read `.claude/design-spec.md` for the design tokens and screen specification.
 > Read the original prototype for comparison: `.claude/prototypes/v{latest}/index.html`
 >
@@ -197,7 +195,7 @@ For tasks with NO user-facing interface, skip to Step 7.
 
 > Review the implementation of TASK-{N} for usability and accessibility.
 > Read `.claude/product-vision.md` for the user flows.
-> Read the task's acceptance criteria from `.claude/tasks.md`.
+> Read `.claude/tasks/TASK-{N}.md` for the acceptance criteria.
 >
 > Use Playwright to navigate, interact, and test:
 > 1. Walk through the user flow step by step
@@ -228,7 +226,7 @@ Do NOT send back through full reviewer cycle for visual/UX-only fixes.
 
 ## Step 7: Mark DONE
 
-Open `.claude/tasks.md` and make these edits to the current task:
+Open `.claude/tasks/TASK-{N}.md` and make these edits:
 
 1. **Change status:** Replace `**Status:** \`IN_REVIEW\`` with `**Status:** \`DONE\``
 2. **Mark all checkboxes as complete:** Replace every `- [ ]` with `- [x]` for:
@@ -245,7 +243,7 @@ Announce:
 Move to the next task (back to Step 2).
 
 ### If CHANGES REQUESTED:
-Update task status to `CHANGES_REQUESTED` in `.claude/tasks.md`.
+Update task status to `CHANGES_REQUESTED` in `.claude/tasks/TASK-{N}.md`.
 Read the reviewer's feedback carefully.
 
 - **If the issue is in production code:** Send **developer** back with the specific feedback. Then send back to **reviewer**.
@@ -387,4 +385,4 @@ If a task is `BLOCKED`:
 
 ## Status Updates
 
-After EVERY step, update the task status in `.claude/tasks.md`. The task file is the single source of truth. Keep it current.
+After EVERY step, update the task status in `.claude/tasks/TASK-{N}.md`. The task files are the single source of truth. Keep them current.

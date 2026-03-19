@@ -14,11 +14,11 @@ case "$COMMAND" in
     ;;
 esac
 
-# Check if tasks.md exists and has in-progress tasks
-if [ -f ".claude/tasks.md" ]; then
-  IN_PROGRESS=$(grep -c '`IN_PROGRESS`\|`TESTING`\|`READY`' .claude/tasks.md 2>/dev/null || echo "0")
+# Check if tasks directory exists and has in-progress tasks
+if [ -d ".claude/tasks" ]; then
+  IN_PROGRESS=$(grep -rl '`IN_PROGRESS`\|`TESTING`\|`READY`' .claude/tasks/ 2>/dev/null | wc -l | tr -d ' ')
   if [ "$IN_PROGRESS" -gt 0 ]; then
-    echo "Committed. Remember to update task status in .claude/tasks.md ($IN_PROGRESS task(s) in progress)."
+    echo "Committed. Remember to update task status in .claude/tasks/ ($IN_PROGRESS task(s) in progress)."
   fi
 fi
 

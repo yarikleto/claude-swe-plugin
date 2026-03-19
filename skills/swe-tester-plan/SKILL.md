@@ -14,7 +14,7 @@ You are the CEO. The system design and task breakdown are ready. Before anyone w
 
 Check that these files exist:
 - `.claude/system-design.md` — architecture, data model, APIs
-- `.claude/tasks.md` — task breakdown with acceptance criteria
+- `.claude/tasks/` — task files (one per task) with acceptance criteria
 - `.claude/product-vision.md` — user flows
 
 If `$ARGUMENTS` contains `--update`, read `.claude/test-plan.md` and revise.
@@ -25,7 +25,7 @@ Send **tester** with this brief:
 
 > Read these files:
 > - `.claude/system-design.md` — understand the architecture, tech stack, data model, API contracts
-> - `.claude/tasks.md` — understand every task and its acceptance criteria
+> - `.claude/tasks/` — read all task files to understand every task and its acceptance criteria
 > - `.claude/product-vision.md` — understand the core user flows
 >
 > Produce a test strategy document. Save it as `.claude/test-plan.md`.
@@ -86,7 +86,7 @@ Send **tester** with this brief:
 >
 > ## 4. Test Coverage Map
 >
-> Map each task from `.claude/tasks.md` to its test coverage:
+> Map each task from `.claude/tasks/` to its test coverage:
 >
 > | Task | Unit Tests | Integration Tests | E2E Tests | Test Design Technique |
 > |------|-----------|------------------|-----------|----------------------|
@@ -167,7 +167,7 @@ Send **tester** with this brief:
 >
 > **Rules:**
 > - Every choice must be justified for THIS project. No generic "we'll use Jest because it's popular."
-> - The test coverage map must account for every task in tasks.md.
+> - The test coverage map must account for every task in `.claude/tasks/`.
 > - Test design techniques must be specific to each area, not generic.
 > - Be practical. Don't propose 500 E2E tests for a 10-task MVP.
 > - TDD is non-negotiable. Tests first, always.
