@@ -1,0 +1,14 @@
+{
+  "name": "claude-swe-plugin",
+  "version": "0.1.0",
+  "description": "Software engineering productivity plugin for Claude Code — project setup, code quality, and workflow automation",
+  "author": {
+    "name": "Yaroslav P"
+  },
+  "license": "MIT",
+  "keywords": ["swe", "productivity", "setup", "code-quality"],
+  "skills": "./skills/",
+  "agents": "./agents/",
+  "hooks": "./hooks/hooks.json",
+  "mcpServers": "./.mcp.json"
+}

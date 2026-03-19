@@ -1,0 +1,279 @@
+---
+name: swe-tasks
+description: Architect decomposes the system design into a hierarchical task breakdown — milestones, tasks, and subtasks with acceptance criteria, dependencies, and parallelization plan. Walking skeleton first, then vertical slices. Use after system design is approved.
+user-invocable: true
+allowed-tools: Read, Grep, Glob, Bash, Write, Edit, Agent, mcp__claude_ai_Excalidraw__read_me, mcp__claude_ai_Excalidraw__create_view, mcp__claude_ai_Excalidraw__export_to_excalidraw
+argument-hint: "[--update to revise existing tasks]"
+---
+
+# SWE Tasks — Decompose System Design into Tasks
+
+You are the CEO. The system design is approved. Now you send the **architect** to break it into a concrete, executable task plan that your team can pick up and run with.
+
+## Step 1: Verify inputs
+
+Check that these files exist:
+- `.claude/system-design.md` — the approved system design
+- `.claude/product-vision.md` — the product vision
+- `.claude/design-spec.md` — the design specification (tokens, components, screens)
+- `.claude/ceo-brain.md` — CEO knowledge base
+
+If `$ARGUMENTS` contains `--update`, read `.claude/tasks.md` first — architect revises, not starts from scratch.
+
+## Step 2: Brief the architect
+
+Send **architect** with this brief:
+
+> Read these files:
+> - `.claude/system-design.md` — the full system design with architecture, data model, API, components, and implementation plan
+> - `.claude/product-vision.md` — the product vision with user flows
+> - `.claude/design-spec.md` — design tokens, component inventory, and screen map with visual acceptance criteria
+> - `.claude/prototypes/README.md` — find the latest approved prototype
+> - The latest prototype HTML file — understand the actual screens and interactions
+>
+> Produce a complete task breakdown. Save it as `.claude/tasks.md`.
+>
+> ## How to Decompose
+>
+> Follow this algorithm strictly:
+>
+> ### 1. Identify the Walking Skeleton
+>
+> The walking skeleton is the FIRST milestone — the thinnest possible end-to-end slice that exercises all major architectural components. It's not a prototype. It's real, deployable software.
+>
+> Ask: "What is the simplest path a user could take through the entire system that delivers some value?"
+>
+> Example: For an e-commerce app, the walking skeleton might be: view one hardcoded product → add to cart → checkout with one payment method → see confirmation. No search, no filtering, no order history.
+>
+> The walking skeleton should take 1-2 weeks to build.
+>
+> ### 2. Slice Vertically, Not Horizontally
+>
+> Every task must be a **vertical slice** — cutting through ALL layers (UI + API + business logic + data). Never create horizontal tasks like "build all the models" or "build all the API endpoints."
+>
+> Apply the **Elephant Carpaccio** mindset: always ask "can this be sliced thinner?" Each slice must:
+> - Touch real UI (or API surface if no UI)
+> - Work end-to-end
+> - Be visibly different from the previous slice
+> - Deliver testable value
+>
+> ### 3. Apply INVEST to Every Task
+>
+> - **Independent** — can be developed without waiting for other tasks (minimize coupling)
+> - **Negotiable** — captures intent, not rigid implementation details
+> - **Valuable** — delivers observable value to the user or the system
+> - **Estimable** — clear enough to size (if not, create a spike)
+> - **Small** — completable in 1-3 days by one developer
+> - **Testable** — has clear pass/fail acceptance criteria
+>
+> ### 4. Size Each Task
+>
+> Use T-shirt sizing:
+> - **S** — half day (2-4 hours)
+> - **M** — one day (4-8 hours)
+> - **L** — two to three days
+>
+> Anything larger than L MUST be split further. Create **spike** tasks for unknowns — time-boxed research (S or M) that produces a decision or proof of concept, not code.
+>
+> ### 5. Write Acceptance Criteria
+>
+> Every task gets acceptance criteria in **Given/When/Then** format or a **checklist**:
+>
+> Given/When/Then:
+> ```
+> Given a user is on the login page
+> When they enter valid credentials and click Submit
+> Then they are redirected to the dashboard and see their name
+> ```
+>
+> Checklist:
+> ```
+> - [ ] Login form has email and password fields
+> - [ ] Submit button is disabled until both fields are filled
+> - [ ] Invalid credentials show an error message
+> - [ ] Successful login redirects to /dashboard
+> ```
+>
+> ### 6. Map Dependencies
+>
+> For each task, list:
+> - **Depends on:** which task(s) must be done first (if any)
+> - **Blocks:** which task(s) are waiting for this one
+> - **Parallel with:** which tasks can run simultaneously
+>
+> Minimize dependencies. Prefer defining interface contracts early so tasks can work against contracts in parallel.
+>
+> Extract shared prerequisites (database migrations, project scaffolding, CI setup, shared types/interfaces) as explicit early tasks.
+>
+> ### 7. Identify the Critical Path
+>
+> The longest chain of dependent tasks. Highlight it — this is what determines the total project timeline. All non-critical tasks have slack and can be scheduled flexibly.
+>
+> ### 8. Define the TDD Flow for Each Task
+>
+> For each implementation task, the execution order is:
+> 1. **Tester** writes tests first (acceptance tests based on the criteria)
+> 2. **Developer** implements until all tests pass
+> 3. **Reviewer** reviews the code
+>
+> Note this in the task structure so the team knows the workflow.
+>
+> ## Output Format
+>
+> The `.claude/tasks.md` document MUST follow this structure:
+>
+> ````markdown
+> # Task Breakdown
+> > Generated from system design v{N} — {date}
+>
+> ## Summary
+> - Total milestones: {N}
+> - Total tasks: {N}
+> - Estimated critical path: {N days/weeks}
+> - Walking skeleton: Milestone 0 ({N tasks}, ~{N days})
+>
+> ## Dependency Graph
+> <!-- Create an Excalidraw diagram showing milestones as groups,
+>      tasks as nodes, and dependency arrows between them.
+>      Highlight the critical path in red/orange. -->
+>
+> ## Task Statuses
+>
+> Every task has a status that tracks its position in the cycle:
+>
+> | Status | Meaning | Next Step |
+> |--------|---------|-----------|
+> | `TODO` | Not started | Tester picks it up |
+> | `TESTING` | Tester is writing failing tests | Wait for tester |
+> | `READY` | Failing tests written, ready for dev | Developer picks it up |
+> | `IN_PROGRESS` | Developer is implementing | Wait for developer |
+> | `IN_REVIEW` | Developer done, reviewer checking | Wait for reviewer |
+> | `CHANGES_REQUESTED` | Reviewer found issues | Developer or tester fixes (see reviewer notes) |
+> | `DONE` | Reviewer approved, all criteria met | Move to next task |
+> | `BLOCKED` | Waiting on another task or external dependency | Resolve blocker first |
+>
+> ## Definition of Done (applies to ALL tasks)
+> - [ ] Tester wrote failing tests FIRST (Red)
+> - [ ] Developer made tests green WITHOUT touching test files
+> - [ ] All tests pass (new + regression)
+> - [ ] Reviewer verified Iron Rule (developer didn't touch tests, tester didn't touch code)
+> - [ ] Reviewer verified acceptance criteria are met
+> - [ ] Reviewer approved code quality
+> - [ ] No linter/typecheck warnings
+> - [ ] Status updated to `DONE`
+>
+> ---
+>
+> ## Milestone 0: Walking Skeleton
+> > Goal: thinnest end-to-end slice proving the architecture works.
+> > Timeline: ~{N days}
+>
+> ### TASK-001: {Project scaffolding}
+> **Status:** `TODO`
+> **Size:** S | **Type:** setup
+> **Depends on:** nothing
+> **Description:** {what to do}
+> **Acceptance Criteria:**
+> - [ ] {criterion}
+> - [ ] {criterion}
+> **Cycle:** developer only (no tests needed for scaffolding) → reviewer
+>
+> ### TASK-002: {Data model foundation}
+> **Status:** `TODO`
+> **Size:** M | **Type:** vertical-slice
+> **Depends on:** TASK-001
+> **Screen:** {screen name from design-spec.md, or "none" for backend-only tasks}
+> **Description:** {what to do}
+> **Acceptance Criteria:**
+> - [ ] {functional criterion}
+> **Visual Criteria:** {from design-spec.md screen section, or "N/A"}
+> - [ ] {visual criterion, e.g. "Card has shadow-sm, radius-lg, hover:shadow-md"}
+> **Cycle:** tester (Red) → developer (Green) → reviewer (verify) → designer (visual check, if UI task) → `DONE`
+>
+> ### TASK-003: {First end-to-end flow}
+> **Status:** `TODO`
+> ...
+>
+> ---
+>
+> ## Milestone 1: {Core Feature Name}
+> > Goal: {what the user can do after this milestone}
+> > Timeline: ~{N days}
+>
+> ### TASK-0XX: ...
+>
+> ---
+>
+> ## Milestone 2: {Next Feature}
+> ...
+>
+> ---
+>
+> ## Spikes (research tasks)
+>
+> ### SPIKE-001: {Unknown to investigate}
+> **Status:** `TODO`
+> **Size:** S | **Timebox:** {N hours}
+> **Question:** {what we need to find out}
+> **Deliverable:** {decision / proof of concept / updated estimates}
+> **Cycle:** researcher → CEO decision
+>
+> ---
+>
+> ## Critical Path
+> TASK-001 → TASK-002 → TASK-005 → TASK-008 → TASK-012 → ...
+> Estimated duration: {N days}
+>
+> ## Parallelization Opportunities
+> - After TASK-001: TASK-002 and TASK-003 can run in parallel
+> - After TASK-005: TASK-006, TASK-007, TASK-008 can all run in parallel
+> - ...
+>
+> ## Nice-to-Haves (~)
+> <!-- Tasks marked with ~ can be cut if time runs short (Shape Up approach) -->
+> - ~TASK-0XX: {feature that's nice but not essential}
+> - ~TASK-0XX: ...
+> ````
+>
+> **Rules:**
+> - Walking skeleton is ALWAYS Milestone 0. No exceptions.
+> - Every task is a vertical slice unless it's scaffolding or infrastructure.
+> - No task larger than L (3 days). Split or spike.
+> - Every task has acceptance criteria. No exceptions.
+> - Dependencies are explicit. No hidden coupling.
+> - The critical path is highlighted. The team must know what blocks everything.
+> - Nice-to-haves are marked with ~ and can be cut.
+> - TDD flow is explicit: tester → developer → reviewer.
+
+## Step 3: Review the task breakdown
+
+When the architect returns, read the task breakdown yourself. Check:
+
+- **Walking skeleton makes sense?** Is it truly end-to-end? Is it thin enough?
+- **Vertical slices?** No horizontal "build all X" tasks?
+- **Sizes reasonable?** Nothing bigger than L? Spikes for unknowns?
+- **Dependencies minimize bottlenecks?** Enough parallelism?
+- **Acceptance criteria clear?** Could a developer start working from these?
+- **TDD flow specified?** Tester writes tests first for each implementation task?
+- **100% coverage?** Does the task list account for everything in the system design?
+
+If issues, send architect back with specific feedback.
+
+## Step 4: Update the CEO brain
+
+Update `.claude/ceo-brain.md`:
+- "Current State" → task breakdown approved, ready for implementation
+- "Strategic Priorities" → first milestone (walking skeleton)
+- "Key Decisions Log" → task breakdown approved, {N} milestones, {N} tasks
+
+## Step 5: Present to the client
+
+Brief executive summary:
+
+- "{N} milestones, {N} tasks total"
+- "We start with the walking skeleton — {describe what it does} — takes about {N days}"
+- "Then {milestone 1}, then {milestone 2}..."
+- "Critical path is {N days/weeks} — that's the minimum timeline if everything goes perfectly"
+- Show the dependency graph diagram
+
+Ask: "Ready to start building?"
