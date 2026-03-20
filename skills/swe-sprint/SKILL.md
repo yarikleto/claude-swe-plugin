@@ -303,7 +303,10 @@ Announce:
 
 3. **Free context:** A hook will remind you to run `/compact`. Do it — this frees all the detailed agent outputs (tester logs, developer diffs, reviewer reports) from the completed task. They're in git history and task files, so nothing is lost. Without compacting, context fills up and later tasks get worse results.
 
-Move to the next task (back to Step 2).
+4. **Check: is this the last task in the current milestone?**
+   Use `Grep` to scan `.claude/tasks/` for tasks in this milestone that are NOT `DONE`.
+   - **If remaining tasks exist →** go to Step 2 (next task).
+   - **If ALL tasks in this milestone are DONE →** go to **Step 8: Milestone checkpoint**. This is MANDATORY — do NOT skip it, do NOT jump to the next milestone's tasks.
 
 ### If CHANGES REQUESTED:
 Update task status to `CHANGES_REQUESTED` in `.claude/tasks/TASK-{N}.md`.
@@ -324,9 +327,9 @@ This is a hard stop. Announce to the client:
 
 Then re-run the full cycle for this task from Step 3.
 
-## Step 8: Milestone checkpoint
+## Step 8: Milestone checkpoint — MANDATORY, DO NOT SKIP
 
-After completing all tasks in a milestone:
+**You MUST run this step when all tasks in a milestone are DONE.** Do NOT jump to the next milestone. The milestone review catches integration issues, gets client direction, and decides what to do next.
 
 ### 8a: Technical wrap-up
 
