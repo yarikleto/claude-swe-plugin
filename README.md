@@ -6,7 +6,7 @@
 
 <p align="center">
   <strong>A full software engineering team inside Claude Code.</strong><br>
-  CEO orchestrator + 9 specialized agents + 10 skills = from idea to production.
+  CEO orchestrator + 10 specialized agents + 10 skills = from idea to production.
 </p>
 
 <p align="center">
@@ -71,7 +71,7 @@ That's it. The CEO will start a conversation with you, understand what you want 
 
 ## The Team
 
-The plugin creates a virtual engineering organization with 9 specialized agents, orchestrated by a CEO persona defined in your project's `CLAUDE.md`.
+The plugin creates a virtual engineering organization with 10 specialized agents, orchestrated by a CEO persona defined in your project's `CLAUDE.md`.
 
 <table>
 <tr>
@@ -106,6 +106,9 @@ Triple gatekeeper: (1) Iron Rule — verifies via `git diff` that developer didn
 
 ### DevOps
 Full infrastructure stack: CI/CD, Docker, reverse proxy (Caddy/nginx/Traefik), caching (CDN + proxy + browser), load balancing, SSL/TLS (Mozilla profiles, auto-certs), compression (brotli/gzip, pre-compressed), rate limiting (3 layers: edge → gateway → app), structured logging (Loki/ELK, correlation IDs), environment management (dev/staging/prod parity, feature flags). Starts simple (PaaS > K8s). Creates handoff guides for client actions. Clear boundary with architect: architect decides WHAT, DevOps implements HOW it runs.
+
+### Manual QA
+Exploratory tester — finds bugs that specs don't predict. Session-based exploratory testing (James Bach, Michael Bolton). Navigates the running app with Playwright looking for edge cases, broken workflows, input validation gaps, cross-viewport issues, keyboard traps. Adapts to project type: web (viewports, forms), CLI (flags, pipes, stderr), API (payloads, auth, rate limits), game (rapid inputs, state transitions). Doesn't write tests or fix code — reports findings with screenshots and reproduction steps.
 
 ### Researcher
 Intelligence analyst with 6 modes: market/domain research, codebase exploration, technology evaluation, UX research, bug investigation, infrastructure comparison. BLUF reporting. Confidence levels (confirmed/likely/possible/speculative). Any agent can delegate here.
@@ -160,6 +163,10 @@ This is the most important rule in the system. The person who writes the spec (t
                          ├─ designer checks visual fidelity (UI tasks)
                          ├─ UX engineer checks usability (UI tasks)
                          └─ DONE → next task
+                        After all tasks in milestone:
+                         ├─ manual QA explores the integrated experience
+                         ├─ developer fixes critical/major findings
+                         └─ client reviews: direction check + feedback
 ```
 
 ## The Task Cycle
@@ -223,6 +230,7 @@ claude-swe-plugin/
 │   ├── designer.md                 # Prototypes, visual review, design spec
 │   ├── developer.md                # Implementation (forbidden from tests)
 │   ├── devops.md                   # CI/CD, infrastructure, handoff guides
+│   ├── manual-qa.md                # Exploratory testing, edge cases, cross-viewport
 │   ├── researcher.md               # 6-mode intelligence analyst
 │   ├── reviewer.md                 # Iron Rule + robustness + quality gate
 │   ├── tester.md                   # TDD, writes tests first (forbidden from code)

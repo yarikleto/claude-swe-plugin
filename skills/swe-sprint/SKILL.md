@@ -326,6 +326,8 @@ Then re-run the full cycle for this task from Step 3.
 
 After completing all tasks in a milestone:
 
+### 8a: Technical wrap-up
+
 1. Run the FULL test suite one more time
 2. Send **developer** to update `CLAUDE.md` Project Context with actual values:
    - Overview, Tech Stack, Project Structure — from what was actually built
@@ -337,11 +339,60 @@ After completing all tasks in a milestone:
    - "Strategic Priorities" — next milestone
    - "Key Decisions Log" — milestone {N} done, {summary}
 5. Commit everything: `git commit -m "milestone({N}): complete — {summary}"`
-6. Report to the client:
-   > "Milestone {N} complete: {what the user can now do}. {N} tasks done. All tests green.
-   > Next up: Milestone {N+1} — {goal}."
 
-Ask: "Want to review what we built before continuing?"
+### 8b: Manual QA — exploratory testing
+
+Send **manual-qa** to explore the milestone as a whole — not individual tasks, but the integrated experience:
+
+> Exploratory QA for Milestone {N}: "{milestone goal}".
+> Read `.claude/tasks/_overview.md` to understand what was built this milestone.
+> Read all DONE task files from this milestone for context.
+> {For web/mobile: "The app is running at http://localhost:{port}."}
+> {For CLI: "The CLI is at {path}."}
+> {For API: "The API is at http://localhost:{port}."}
+>
+> Charter: Explore the features built in Milestone {N} as a whole. Test cross-feature interactions, end-to-end workflows, and edge cases that individual task reviews wouldn't catch.
+>
+> Focus areas:
+> - Smoke test: walk through the core user flow that this milestone enables
+> - Cross-feature interactions: do features from different tasks work together?
+> - Input edge cases: special characters, boundary values, empty states
+> - Cross-viewport: test at mobile (375px), tablet (768px), and desktop (1280px)
+> - Keyboard navigation: can you use the milestone features without a mouse?
+> - State & timing: back button, refresh, rapid clicks, double-submit
+>
+> Take screenshots as evidence for any findings.
+
+**Handle Manual QA results:**
+- **Critical/Major bugs:** Fix before presenting to client. Send **developer** → fix → manual-qa re-checks specific issues. Max 1 round.
+- **Minor/Cosmetic bugs:** Note them for the client report — they can decide priority.
+
+### 8c: Client review
+
+Present the milestone to the client. This is a direction check — is the product moving the right way?
+
+Report:
+> **Milestone {N} complete: "{milestone goal}"**
+>
+> **What's working now:**
+> {List the features the client can now use/see, in user terms — not task IDs}
+>
+> **How to try it:**
+> {Exact instructions: URL, command, steps to see the milestone in action}
+>
+> **Test results:** {N} tests green. Manual QA: {PASS / N issues found — summary}.
+> {If minor/cosmetic bugs were found: "Minor issues found: {list}. Fix now or defer?"}
+>
+> **Next up:** Milestone {N+1} — {goal}.
+>
+> **Please check:**
+> 1. {Specific thing to verify — e.g., "Does the checkout flow feel right?"}
+> 2. {Another thing — e.g., "Are the dashboard widgets showing the right data?"}
+> 3. {Direction check — e.g., "Is this the priority order you want, or should we shift focus?"}
+>
+> Take your time. Any feedback changes what we build next.
+
+**Wait for the client to respond before starting the next milestone.** This is a Type 1 decision gate — the client's direction matters more than velocity.
 
 ## Parallelization
 

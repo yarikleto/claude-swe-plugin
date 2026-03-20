@@ -1,7 +1,7 @@
 # Claude SWE Plugin — Development Guide
 
 ## What This Is
-A Claude Code plugin with 9 agents + 10 skills. See README.md for the full description.
+A Claude Code plugin with 10 agents + 10 skills. See README.md for the full description.
 
 ## Critical Rule: Keep README.md in Sync
 
