@@ -301,9 +301,7 @@ Zero `[ ]` should remain on a DONE task.
 Announce:
 > "TASK-{N} done. {Brief summary of what was built.}"
 
-3. **Free context:** A hook will remind you to run `/compact`. Do it — this frees all the detailed agent outputs (tester logs, developer diffs, reviewer reports) from the completed task. They're in git history and task files, so nothing is lost. Without compacting, context fills up and later tasks get worse results.
-
-4. **Check: is this the last task in the current milestone?**
+3. **Check: is this the last task in the current milestone?**
    Use `Grep` to scan `.claude/tasks/` for tasks in this milestone that are NOT `DONE`.
    - **If remaining tasks exist →** go to Step 2 (next task).
    - **If ALL tasks in this milestone are DONE →** go to **Step 8: Milestone checkpoint**. This is MANDATORY — do NOT skip it, do NOT jump to the next milestone's tasks.
