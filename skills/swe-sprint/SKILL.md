@@ -340,64 +340,109 @@ After completing all tasks in a milestone:
    - "Key Decisions Log" — milestone {N} done, {summary}
 5. Commit everything: `git commit -m "milestone({N}): complete — {summary}"`
 
-### 8b: Manual QA — exploratory testing
+### 8b: Milestone review — collect verdicts
 
-Send **manual-qa** to explore the milestone as a whole — not individual tasks, but the integrated experience:
+Every relevant agent reviews the milestone as a whole — not individual tasks, but the integrated experience. Run them in parallel where possible.
+
+**Which agents review depends on the project type:**
+- **Web/Mobile/Game:** designer + ux-engineer + manual-qa (all three in parallel)
+- **CLI:** ux-engineer + manual-qa (no designer visual review)
+- **API/SDK/Library:** ux-engineer (DX review) + manual-qa
+- **Backend/Infra:** manual-qa only
+- **Always:** manual-qa runs for every project type
+
+#### Designer verdict (projects with visual UI)
+
+> Milestone {N} visual review.
+> Read `.claude/tasks/_overview.md` to understand what was built.
+> Read `.claude/design-spec.md` for the design system.
+> Read the prototype at `.claude/prototypes/v{latest}/index.html`.
+>
+> Use Playwright to navigate through ALL screens built in this milestone.
+> Take screenshots. Compare against the design spec and prototype.
+>
+> Check the milestone as a whole:
+> - Visual consistency across screens — do all screens feel like the same product?
+> - Design system adherence — are tokens used consistently (colors, spacing, typography)?
+> - Transitions and animations — do they feel cohesive?
+> - Responsive behavior — does it hold together at different viewports?
+>
+> Return your **Milestone Verdict:**
+> - **What looks good** — what's working visually
+> - **Issues** — specific problems with severity (Critical/Major/Minor/Cosmetic)
+> - **Recommendations** — visual improvements for next milestone
+> - **Overall:** PASS / NEEDS WORK
+
+#### UX Engineer verdict (projects with user-facing interface)
+
+> Milestone {N} usability review.
+> Read `.claude/product-vision.md` for the user flows.
+> Read `.claude/tasks/_overview.md` to understand what was built.
+>
+> Use Playwright to walk through the user flows this milestone enables.
+> Test keyboard navigation, accessibility, cognitive load.
+>
+> Check the milestone as a whole:
+> - Do the features form a coherent user experience when used together?
+> - Is the information architecture consistent across screens/commands/endpoints?
+> - Are error messages helpful and consistent?
+> - Accessibility: can the milestone features be used without a mouse? with a screen reader?
+>
+> Return your **Milestone Verdict:**
+> - **What works well** — usability wins
+> - **Issues** — specific problems with severity
+> - **Recommendations** — UX improvements for next milestone
+> - **Overall:** PASS / NEEDS WORK
+
+#### Manual QA verdict (all project types)
 
 > Exploratory QA for Milestone {N}: "{milestone goal}".
-> Read `.claude/tasks/_overview.md` to understand what was built this milestone.
+> Read `.claude/tasks/_overview.md` to understand what was built.
 > Read all DONE task files from this milestone for context.
-> Read `.claude/system-design.md` to understand the project type and architecture.
+> Read `.claude/system-design.md` to understand the project type.
 >
 > {Access instructions — pick what matches the project:}
-> {Web/Mobile: "The app is running at http://localhost:{port}. Navigate and explore."}
-> {CLI: "The CLI is built at {path}. Run commands and explore."}
-> {API: "The API is running at http://localhost:{port}. Send requests via curl/scripts."}
-> {Game: "The game is running at {path/URL}. Play and explore."}
-> {Library/SDK: "The package is at {path}. Write small test scripts that use the public API."}
-> {Backend/Infra: "The service is running at {endpoint}. Test operations and observe behavior."}
+> {Web/Mobile: "The app is running at http://localhost:{port}."}
+> {CLI: "The CLI is built at {path}."}
+> {API: "The API is running at http://localhost:{port}."}
+> {Game: "The game is running at {path/URL}."}
+> {Library/SDK: "The package is at {path}."}
+> {Backend/Infra: "The service is running at {endpoint}."}
 >
-> Charter: Explore the features built in Milestone {N} as a whole. Test cross-feature interactions, end-to-end workflows, and edge cases that individual task reviews wouldn't catch.
+> Charter: Explore the milestone as a whole — cross-feature interactions, end-to-end workflows, edge cases that individual task reviews wouldn't catch.
 >
 > Pick focus areas appropriate to this project type:
 >
 > **All project types:**
-> - Smoke test: walk through the core flow that this milestone enables
+> - Smoke test: core flow this milestone enables
 > - Cross-feature interactions: do features from different tasks work together?
 > - Input edge cases: special characters, boundary values, empty states, overflow
-> - Error recovery: trigger errors, then try to continue normally
+> - Error recovery: trigger errors, then continue normally
 >
 > **Web/Mobile/Game (has visual UI):**
 > - Cross-viewport: mobile (375px), tablet (768px), desktop (1280px)
-> - Keyboard navigation: Tab through all interactive elements, check for traps
-> - State & timing: back button, refresh, rapid clicks, double-submit
+> - Keyboard navigation, state & timing (back button, refresh, rapid clicks)
 >
 > **CLI:**
-> - Wrong/missing flags, extra arguments, special characters in args
-> - Piping: `| grep`, `| head`, `| jq` — does stdout work as expected?
-> - Exit codes: 0 on success, non-zero on error? stderr vs stdout correct?
-> - `--help` useful? `NO_COLOR=1` works?
+> - Wrong/missing flags, piping, exit codes, stderr vs stdout, `--help`, `NO_COLOR=1`
 >
 > **API/SDK/Library:**
-> - Missing fields, extra fields, wrong types in requests
-> - Auth edge cases: no token, expired token, wrong permissions
-> - Rate limiting behavior, idempotency, large/empty payloads
-> - Error responses: structured, helpful, no sensitive data leaked?
+> - Missing/extra fields, auth edge cases, rate limiting, large/empty payloads
 >
 > **Backend/Infra:**
-> - Service health: does it start, respond to health checks, handle restarts?
-> - Load behavior: what happens under concurrent requests?
-> - Configuration edge cases: missing env vars, wrong values
+> - Health checks, restart behavior, concurrent requests, config edge cases
 >
-> Take screenshots or save output as evidence for any findings.
-
-**Handle Manual QA results:**
-- **Critical/Major bugs:** Fix before presenting to client. Send **developer** → fix → manual-qa re-checks specific issues. Max 1 round.
-- **Minor/Cosmetic bugs:** Note them for the client report — they can decide priority.
+> Take screenshots or save output as evidence.
+>
+> Return your **Milestone Verdict:**
+> - **Smoke test result** — PASS/FAIL
+> - **Bugs found** — with severity, reproduction steps, evidence
+> - **Areas NOT covered** — what you didn't have time to explore
+> - **Overall:** PASS / ISSUES FOUND
 
 ### 8c: Client review
 
-Present the milestone to the client. This is a direction check — is the product moving the right way?
+Present the milestone to the client with all verdicts. The client is the final reviewer — their feedback matters most.
 
 Report:
 > **Milestone {N} complete: "{milestone goal}"**
@@ -408,19 +453,58 @@ Report:
 > **How to try it:**
 > {Exact instructions: URL, command, steps to see the milestone in action}
 >
-> **Test results:** {N} tests green. Manual QA: {PASS / N issues found — summary}.
-> {If minor/cosmetic bugs were found: "Minor issues found: {list}. Fix now or defer?"}
+> **Team verdicts:**
+> - Automated tests: {N} green
+> - Designer: {PASS / NEEDS WORK — one-line summary}
+> - UX Engineer: {PASS / NEEDS WORK — one-line summary}
+> - Manual QA: {PASS / ISSUES FOUND — N bugs, highest severity}
 >
-> **Next up:** Milestone {N+1} — {goal}.
+> {If issues were found: "Key issues: {top 3 most important findings across all verdicts}"}
 >
 > **Please check:**
 > 1. {Specific thing to verify — e.g., "Does the checkout flow feel right?"}
-> 2. {Another thing — e.g., "Are the dashboard widgets showing the right data?"}
-> 3. {Direction check — e.g., "Is this the priority order you want, or should we shift focus?"}
+> 2. {Another — e.g., "Are the dashboard widgets showing the right data?"}
+> 3. {Direction check — "Is this the priority you want, or should we shift focus?"}
 >
-> Take your time. Any feedback changes what we build next.
+> Take your time. Your feedback shapes what we do next.
 
-**Wait for the client to respond before starting the next milestone.** This is a Type 1 decision gate — the client's direction matters more than velocity.
+**Wait for the client to respond.**
+
+### 8d: CEO synthesis — decide next actions
+
+After collecting ALL verdicts (designer, UX, manual QA, client), YOU (CEO) synthesize and decide:
+
+1. **Read all verdicts.** Categorize findings:
+   - **Critical bugs** — must fix before next milestone
+   - **Design/UX issues** — need architect or designer input
+   - **Direction feedback** — client wants to change priorities
+   - **Minor/cosmetic** — defer or batch into a cleanup task
+   - **Architecture concerns** — system design needs revision
+
+2. **Decide actions.** For each finding:
+   - **Bug fix:** Create a hotfix task → send developer → quick review → done
+   - **Architecture adjustment:** Send **architect** to revise `.claude/system-design.md` → update affected tasks
+   - **New tasks:** Add tasks to the next milestone in `.claude/tasks/`
+   - **Reprioritize:** Reorder next milestone tasks based on client feedback
+   - **Design revision:** Send **designer** to update prototypes/design spec
+   - **Scope cut:** Remove or defer tasks that no longer align with direction
+   - **No action:** Finding is noted but doesn't warrant work now
+
+3. **Update strategic documents:**
+   - `.claude/ceo-brain.md` — new decisions, updated priorities, lessons learned
+   - `.claude/tasks/_overview.md` — if milestones or tasks changed
+   - `.claude/system-design.md` — if architecture needs adjustment (via architect)
+
+4. **Report to client:**
+   > "Based on everyone's feedback, here's the plan:
+   > - Fixing: {list of bugs/issues being addressed}
+   > - Adding: {new tasks, if any}
+   > - Changing: {architecture/priority shifts, if any}
+   > - Deferring: {things we're not doing now, and why}
+   >
+   > Ready to start Milestone {N+1}?"
+
+**Only start the next milestone after the client confirms.**
 
 ## Parallelization
 

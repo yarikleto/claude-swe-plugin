@@ -164,10 +164,10 @@ This is the most important rule in the system. The person who writes the spec (t
                          ├─ designer checks visual fidelity (UI tasks)
                          ├─ UX engineer checks usability (UI tasks)
                          └─ DONE → next task
-                        After all tasks in milestone:
-                         ├─ manual QA explores the integrated experience
-                         ├─ developer fixes critical/major findings
-                         └─ client reviews: direction check + feedback
+                        Milestone checkpoint:
+                         ├─ designer + UX + manual QA give verdicts (parallel)
+                         ├─ client reviews: direction check + feedback
+                         └─ CEO synthesizes → fix bugs / adjust architecture / add tasks
 ```
 
 ## The Task Cycle
