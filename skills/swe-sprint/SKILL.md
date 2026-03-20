@@ -301,7 +301,7 @@ Zero `[ ]` should remain on a DONE task.
 Announce:
 > "TASK-{N} done. {Brief summary of what was built.}"
 
-3. **Context summary:** Write a brief internal note (not shown to client) summarizing the completed task in 2-3 lines: what was built, any notable decisions, any issues to carry forward. This is the only thing the auto-compressor needs to preserve — all agent outputs (tester logs, diffs, review reports) are in git history and task files, so they're safe to compress away.
+3. **Free context:** A hook will remind you to run `/compact`. Do it — this frees all the detailed agent outputs (tester logs, developer diffs, reviewer reports) from the completed task. They're in git history and task files, so nothing is lost. Without compacting, context fills up and later tasks get worse results.
 
 Move to the next task (back to Step 2).
 

@@ -218,13 +218,14 @@ claude-swe-plugin/
 │   └── marketplace.json            # Marketplace discovery
 ├── .mcp.json                       # Playwright MCP for screenshots
 ├── hooks/
-│   └── hooks.json                  # 5 hooks (see Hooks section)
+│   └── hooks.json                  # 6 hooks (see Hooks section)
 ├── scripts/
 │   ├── session-start.sh            # Loads CEO brain into context
 │   ├── iron-rule-check.sh          # Blocks Iron Rule violations
 │   ├── auto-format.sh              # Runs formatter after edits
 │   ├── stop-save-progress.sh       # Warns about unsaved progress on session end
-│   └── post-commit-remind.sh       # Reminds to update task status
+│   ├── post-commit-remind.sh       # Reminds to update task status
+│   └── post-task-done-compact.sh   # Reminds to /compact after task DONE
 ├── agents/
 │   ├── architect.md                # Domain-agnostic system design, ADRs, C4
 │   ├── dba.md                      # Database-agnostic schema, migrations, integrity
@@ -273,7 +274,7 @@ claude-swe-plugin/
 
 ## Hooks (Automated Enforcement)
 
-5 hooks run automatically — no manual invocation needed:
+6 hooks run automatically — no manual invocation needed:
 
 | Hook | Event | What it does |
 |------|-------|-------------|
@@ -282,6 +283,7 @@ claude-swe-plugin/
 | **Auto-Formatter** | `PostToolUse` (Edit\|Write) | Runs the project's formatter after every code edit. Tries prettier/biome first, falls back to language-specific tools (gofmt, rustfmt, black, rubocop, clang-format, etc.). Async, non-blocking. |
 | **Save Progress Guard** | `Stop` | **Warns** if tasks are still `IN_PROGRESS`, uncommitted changes exist, or CEO brain is stale. Reminds to save work before leaving. |
 | **Post-Commit Reminder** | `PostToolUse` (Bash) | After `git commit`, reminds to update task status in `.claude/tasks/`. |
+| **Task Done Compact** | `PostToolUse` (Edit) | When a task is marked `DONE`, reminds to run `/compact` to free context for the next task. |
 
 The Iron Rule hook is the most important — it provides **mechanical enforcement**, not just prompt-based rules. Even if an agent "forgets" the rule, the hook physically blocks the write.
 
