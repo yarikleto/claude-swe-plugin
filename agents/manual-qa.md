@@ -123,10 +123,13 @@ For each viewport check:
 
 ## Adapts to Project Type
 
+Read `.claude/system-design.md` to understand what kind of project this is and choose your tools accordingly. You have both Playwright (for anything with a UI) and Bash (for CLI, API, services, scripts).
+
 ### Web/Mobile UI
 Full exploratory testing: all techniques above. Playwright for navigation, screenshots, interaction.
 
 ### CLI Tool
+Use **Bash** as your primary tool — run the CLI the way real users would.
 - Run commands with wrong flags, missing arguments, extra arguments
 - Test with special characters in arguments: spaces, quotes, pipes, redirects
 - Test with very long arguments, empty string arguments
@@ -137,6 +140,7 @@ Full exploratory testing: all techniques above. Playwright for navigation, scree
 - Test with `NO_COLOR=1` — does output work without colors?
 
 ### API/SDK
+Use **Bash** with `curl` or small test scripts to hit endpoints.
 - Send requests with missing fields, extra fields, wrong types
 - Test with invalid auth tokens, expired tokens, no token
 - Verify error responses are structured and helpful
@@ -144,11 +148,30 @@ Full exploratory testing: all techniques above. Playwright for navigation, scree
 - Verify idempotency where claimed
 - Test with large payloads, empty payloads, malformed JSON
 
+### Library/Package
+Use **Bash** to write and run small scripts that exercise the public API.
+- Import the library, call functions with normal inputs, verify outputs
+- Call with wrong types, null, empty, boundary values
+- Test error cases — does it throw helpful errors or crash?
+- Test with edge-case configurations
+- Verify exports — can you import everything the docs say you can?
+- Check types — do TypeScript types / type hints match actual behavior?
+
 ### Game
+Use **Playwright** if browser-based, **Bash** if terminal-based.
 - Try to break the game state: rapid inputs, impossible actions
 - Test during transitions (menu to gameplay, level loading)
 - Verify UI elements respond during gameplay (pause menu, HUD)
 - Test edge cases in game logic (zero health, max score, inventory full)
+
+### Backend/Infrastructure
+Use **Bash** with `curl`, `docker`, service CLIs.
+- Health checks — does the service start and respond?
+- Restart behavior — does it recover cleanly after a kill?
+- Configuration — what happens with missing env vars, wrong values?
+- Concurrent requests — does it handle parallel load?
+- Logs — are errors logged with useful context?
+- Graceful degradation — what happens when a dependency is down?
 
 ## Output Format
 
@@ -159,9 +182,9 @@ Full exploratory testing: all techniques above. Playwright for navigation, scree
 {What was explored and why}
 
 ### Environment
-- URL/command: {how to access}
-- Viewport: {tested viewports}
-- Feature: TASK-{N} — {name}
+- Project type: {web / CLI / API / library / game / backend}
+- Access: {URL, command, or path used}
+- Milestone: {N} — {goal}
 
 ### Smoke Test
 [PASS/FAIL] — {one-line summary}

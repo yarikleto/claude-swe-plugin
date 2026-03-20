@@ -347,21 +347,49 @@ Send **manual-qa** to explore the milestone as a whole — not individual tasks,
 > Exploratory QA for Milestone {N}: "{milestone goal}".
 > Read `.claude/tasks/_overview.md` to understand what was built this milestone.
 > Read all DONE task files from this milestone for context.
-> {For web/mobile: "The app is running at http://localhost:{port}."}
-> {For CLI: "The CLI is at {path}."}
-> {For API: "The API is at http://localhost:{port}."}
+> Read `.claude/system-design.md` to understand the project type and architecture.
+>
+> {Access instructions — pick what matches the project:}
+> {Web/Mobile: "The app is running at http://localhost:{port}. Navigate and explore."}
+> {CLI: "The CLI is built at {path}. Run commands and explore."}
+> {API: "The API is running at http://localhost:{port}. Send requests via curl/scripts."}
+> {Game: "The game is running at {path/URL}. Play and explore."}
+> {Library/SDK: "The package is at {path}. Write small test scripts that use the public API."}
+> {Backend/Infra: "The service is running at {endpoint}. Test operations and observe behavior."}
 >
 > Charter: Explore the features built in Milestone {N} as a whole. Test cross-feature interactions, end-to-end workflows, and edge cases that individual task reviews wouldn't catch.
 >
-> Focus areas:
-> - Smoke test: walk through the core user flow that this milestone enables
+> Pick focus areas appropriate to this project type:
+>
+> **All project types:**
+> - Smoke test: walk through the core flow that this milestone enables
 > - Cross-feature interactions: do features from different tasks work together?
-> - Input edge cases: special characters, boundary values, empty states
-> - Cross-viewport: test at mobile (375px), tablet (768px), and desktop (1280px)
-> - Keyboard navigation: can you use the milestone features without a mouse?
+> - Input edge cases: special characters, boundary values, empty states, overflow
+> - Error recovery: trigger errors, then try to continue normally
+>
+> **Web/Mobile/Game (has visual UI):**
+> - Cross-viewport: mobile (375px), tablet (768px), desktop (1280px)
+> - Keyboard navigation: Tab through all interactive elements, check for traps
 > - State & timing: back button, refresh, rapid clicks, double-submit
 >
-> Take screenshots as evidence for any findings.
+> **CLI:**
+> - Wrong/missing flags, extra arguments, special characters in args
+> - Piping: `| grep`, `| head`, `| jq` — does stdout work as expected?
+> - Exit codes: 0 on success, non-zero on error? stderr vs stdout correct?
+> - `--help` useful? `NO_COLOR=1` works?
+>
+> **API/SDK/Library:**
+> - Missing fields, extra fields, wrong types in requests
+> - Auth edge cases: no token, expired token, wrong permissions
+> - Rate limiting behavior, idempotency, large/empty payloads
+> - Error responses: structured, helpful, no sensitive data leaked?
+>
+> **Backend/Infra:**
+> - Service health: does it start, respond to health checks, handle restarts?
+> - Load behavior: what happens under concurrent requests?
+> - Configuration edge cases: missing env vars, wrong values
+>
+> Take screenshots or save output as evidence for any findings.
 
 **Handle Manual QA results:**
 - **Critical/Major bugs:** Fix before presenting to client. Send **developer** → fix → manual-qa re-checks specific issues. Max 1 round.
