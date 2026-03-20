@@ -301,6 +301,10 @@ Zero `[ ]` should remain on a DONE task.
 Announce:
 > "TASK-{N} done. {Brief summary of what was built.}"
 
+3. **Free context:** Run `/compact` to compress the conversation. This releases all the detailed agent outputs (tester logs, developer diffs, reviewer reports) from the completed task, keeping only a summary. Without this, context fills up and later tasks get worse results.
+
+The compact summary should capture: which task was done, what was built, any notable decisions or issues. Everything else (agent briefs, test output, review checklists) is in git history and task files — no need to keep it in context.
+
 Move to the next task (back to Step 2).
 
 ### If CHANGES REQUESTED:
