@@ -134,7 +134,7 @@ This is the most important rule in the system. The person who writes the spec (t
 | `/swe-devops-deploy` | Infrastructure — CI/CD, Docker, hosting, CDN, monitoring + client handoff guides | DevOps |
 | `/swe-architect-tasks` | Decompose system design into tasks with statuses, dependencies, acceptance criteria | Architect |
 | `/swe-tester-plan` | Test strategy — frameworks, pyramid, coverage map, Definition of Done | Tester |
-| `/swe-sprint` | Task cycle: tester(Red) → architect verifies tests → developer(Green) → reviewer → designer/UX → DONE. Milestone checkpoint: manual QA → client review | CEO |
+| `/swe-sprint` | Task cycle: tester(Red) → architect verifies tests → developer(Green) → reviewer → designer/UX → DONE. Milestone: all agents give verdicts → client reviews → CEO synthesizes | CEO |
 | `/swe-brief` | CEO revisits product vision, checks reality vs plan, updates strategic documents | CEO |
 | `/swe-sync` | Quick sync — CEO reviews recent changes, updates knowledge base | CEO |
 
@@ -223,7 +223,7 @@ claude-swe-plugin/
 │   ├── session-start.sh            # Loads CEO brain into context
 │   ├── iron-rule-check.sh          # Blocks Iron Rule violations
 │   ├── auto-format.sh              # Runs formatter after edits
-│   ├── stop-save-progress.sh       # Blocks session end without saving
+│   ├── stop-save-progress.sh       # Warns about unsaved progress on session end
 │   └── post-commit-remind.sh       # Reminds to update task status
 ├── agents/
 │   ├── architect.md                # Domain-agnostic system design, ADRs, C4
@@ -233,7 +233,7 @@ claude-swe-plugin/
 │   ├── devops.md                   # CI/CD, infrastructure, handoff guides
 │   ├── manual-qa.md                # Exploratory testing, edge cases, cross-viewport
 │   ├── researcher.md               # 6-mode intelligence analyst
-│   ├── reviewer.md                 # Iron Rule + robustness + quality gate
+│   ├── reviewer.md                 # Iron Rule + robustness + test-spec alignment + quality gate
 │   ├── tester.md                   # TDD, writes tests first (forbidden from code)
 │   └── ux-engineer.md              # Nielsen's 10 heuristics, accessibility
 └── skills/
