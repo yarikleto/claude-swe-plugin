@@ -69,6 +69,20 @@ Once installed, kick off a new project:
 
 That's it. The CEO will start a conversation with you, understand what you want to build, and drive the entire process.
 
+### Recommended: configure auto-compact
+
+The model performs best with under 100k tokens in context. For long sprint sessions, add this to your project's `.claude/settings.json`:
+
+```json
+{
+  "env": {
+    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "10"
+  }
+}
+```
+
+This triggers auto-compaction at ~100k tokens instead of the default ~950k, keeping the context lean throughout the sprint.
+
 ## The Team
 
 The plugin creates a virtual engineering organization with 10 specialized agents, orchestrated by a CEO persona defined in your project's `CLAUDE.md`.

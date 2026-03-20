@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Check auto-compact setting — model performs best under 100k tokens
+if [ -z "$CLAUDE_AUTOCOMPACT_PCT_OVERRIDE" ]; then
+  echo "WARNING: CLAUDE_AUTOCOMPACT_PCT_OVERRIDE is not set. For best performance, set it to 10 (auto-compact at ~100k tokens)." >&2
+  echo "Add to your project .claude/settings.json:" >&2
+  echo '  { "env": { "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "10" } }' >&2
+  echo "" >&2
+fi
+
 CEO_BRAIN=".claude/ceo-brain.md"
 
 if [ -f "$CEO_BRAIN" ]; then
