@@ -347,7 +347,12 @@ Then re-run the full cycle for this task from Step 3.
 
 ### 8b: Milestone review — collect verdicts
 
-Every relevant agent reviews the milestone as a whole — not individual tasks, but the integrated experience. Run them in parallel where possible.
+Every relevant agent reviews the milestone as a whole — not individual tasks, but the integrated experience.
+
+**CRITICAL: This is a BLOCKING step.** You MUST:
+- Send review agents in foreground (NOT `run_in_background`) — wait for ALL verdicts before proceeding
+- Do NOT start any next-milestone work until Step 8d is complete and the client confirms
+- Do NOT send agents in background and proceed in parallel — the whole point is to STOP and review
 
 **Which agents review depends on the project type:**
 - **Web/Mobile/Game:** designer + ux-engineer + manual-qa (all three in parallel)
@@ -500,7 +505,7 @@ After collecting ALL verdicts (designer, UX, manual QA, client), YOU (CEO) synth
    >
    > Ready to start Milestone {N+1}?"
 
-**Only start the next milestone after the client confirms.**
+**HARD STOP. Do NOT start the next milestone until the client responds and confirms.** No background work, no "getting ahead", no pre-fetching next milestone tasks. Wait.
 
 ## Parallelization
 
