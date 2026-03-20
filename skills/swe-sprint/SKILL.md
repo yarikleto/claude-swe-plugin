@@ -372,11 +372,8 @@ Every relevant agent reviews the milestone as a whole — not individual tasks, 
 > - Transitions and animations — do they feel cohesive?
 > - Responsive behavior — does it hold together at different viewports?
 >
-> Return your **Milestone Verdict:**
-> - **What looks good** — what's working visually
-> - **Issues** — specific problems with severity (Critical/Major/Minor/Cosmetic)
-> - **Recommendations** — visual improvements for next milestone
-> - **Overall:** PASS / NEEDS WORK
+> Save your full report to `.claude/qa/milestone-{N}-designer.md`.
+> Return a SHORT summary to CEO: overall verdict (PASS/NEEDS WORK), top 3 issues, and the file path.
 
 #### UX Engineer verdict (projects with user-facing interface)
 
@@ -393,11 +390,8 @@ Every relevant agent reviews the milestone as a whole — not individual tasks, 
 > - Are error messages helpful and consistent?
 > - Accessibility: can the milestone features be used without a mouse? with a screen reader?
 >
-> Return your **Milestone Verdict:**
-> - **What works well** — usability wins
-> - **Issues** — specific problems with severity
-> - **Recommendations** — UX improvements for next milestone
-> - **Overall:** PASS / NEEDS WORK
+> Save your full report to `.claude/qa/milestone-{N}-ux.md`.
+> Return a SHORT summary to CEO: overall verdict (PASS/NEEDS WORK), top 3 issues, and the file path.
 
 #### Manual QA verdict (all project types)
 
@@ -439,11 +433,8 @@ Every relevant agent reviews the milestone as a whole — not individual tasks, 
 >
 > Take screenshots or save output as evidence.
 >
-> Return your **Milestone Verdict:**
-> - **Smoke test result** — PASS/FAIL
-> - **Bugs found** — with severity, reproduction steps, evidence
-> - **Areas NOT covered** — what you didn't have time to explore
-> - **Overall:** PASS / ISSUES FOUND
+> Save your full report to `.claude/qa/milestone-{N}.md`.
+> Return a SHORT summary to CEO: overall verdict (PASS/ISSUES FOUND), bug counts by severity, top 3 issues, and the file path.
 
 ### 8c: Client review
 
@@ -479,7 +470,7 @@ Report:
 
 After collecting ALL verdicts (designer, UX, manual QA, client), YOU (CEO) synthesize and decide:
 
-1. **Read all verdicts.** Categorize findings:
+1. **Read all verdict files** (`.claude/qa/milestone-{N}*.md`). Categorize findings:
    - **Critical bugs** — must fix before next milestone
    - **Design/UX issues** — need architect or designer input
    - **Direction feedback** — client wants to change priorities
