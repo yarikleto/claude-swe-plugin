@@ -168,12 +168,10 @@ Send **architect** with this brief:
 >
 > ## Milestone 0: Walking Skeleton
 > > Goal: thinnest end-to-end slice proving the architecture works.
-> > Timeline: ~{N days}
 > > Tasks: TASK-001, TASK-002, TASK-003, ...
 >
 > ## Milestone 1: {Core Feature Name}
 > > Goal: {what the user can do after this milestone}
-> > Timeline: ~{N days}
 > > Tasks: TASK-0XX, TASK-0XX, ...
 >
 > ## Milestone 2: {Next Feature}
