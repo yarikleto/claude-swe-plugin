@@ -102,13 +102,13 @@ Data structures first, code second (Torvalds). Makes TDD tests green, then refac
 Kent Beck's Three Laws of TDD. Writes failing tests BEFORE the developer writes code. Test list first, then Red-Green-Refactor. Equivalence partitioning, boundary values, state transitions, error guessing. Knows the test doubles taxonomy (Meszaros). **Forbidden from touching production code.**
 
 ### Reviewer
-Triple gatekeeper: (1) Iron Rule — verifies via `git diff` that developer didn't touch tests, tester didn't touch code. (2) Robustness — implementation is genuine, general, and robust (not fitted to test cases). Fair — simple code for simple problems is fine. (3) Code quality — correctness, security, edge cases. Nothing ships without APPROVE.
+Quadruple gatekeeper: (1) Iron Rule — verifies via `git diff` that developer didn't touch tests, tester didn't touch code. (2) Robustness — implementation is genuine, general, and robust (not fitted to test cases). (3) Test-Spec Alignment — tests actually match acceptance criteria, no wrong assumptions, no over-specification. Evaluates developer disputes. (4) Code quality — correctness, security, edge cases. Marks criteria checkboxes `[x]` on APPROVE. Nothing ships without APPROVE.
 
 ### DevOps
 Full infrastructure stack: CI/CD, Docker, reverse proxy (Caddy/nginx/Traefik), caching (CDN + proxy + browser), load balancing, SSL/TLS (Mozilla profiles, auto-certs), compression (brotli/gzip, pre-compressed), rate limiting (3 layers: edge → gateway → app), structured logging (Loki/ELK, correlation IDs), environment management (dev/staging/prod parity, feature flags). Starts simple (PaaS > K8s). Creates handoff guides for client actions. Clear boundary with architect: architect decides WHAT, DevOps implements HOW it runs.
 
 ### Manual QA
-Exploratory tester — finds bugs that specs don't predict. Session-based exploratory testing (James Bach, Michael Bolton). Navigates the running app with Playwright looking for edge cases, broken workflows, input validation gaps, cross-viewport issues, keyboard traps. Adapts to project type: web (viewports, forms), CLI (flags, pipes, stderr), API (payloads, auth, rate limits), game (rapid inputs, state transitions). Doesn't write tests or fix code — reports findings with screenshots and reproduction steps.
+Exploratory tester — finds bugs that specs don't predict. Session-based exploratory testing (James Bach, Michael Bolton). Runs at milestone checkpoints, not per-task. Adapts tools to project type: Playwright for web/mobile/game UI; Bash + curl/scripts for CLI, API, libraries, backend services. Covers cross-feature interactions, input edge cases, error recovery, state/timing issues. Doesn't write tests or fix code — reports findings with evidence and reproduction steps.
 
 ### Researcher
 Intelligence analyst with 6 modes: market/domain research, codebase exploration, technology evaluation, UX research, bug investigation, infrastructure comparison. BLUF reporting. Confidence levels (confirmed/likely/possible/speculative). Any agent can delegate here.
@@ -134,7 +134,7 @@ This is the most important rule in the system. The person who writes the spec (t
 | `/swe-devops-deploy` | Infrastructure — CI/CD, Docker, hosting, CDN, monitoring + client handoff guides | DevOps |
 | `/swe-architect-tasks` | Decompose system design into tasks with statuses, dependencies, acceptance criteria | Architect |
 | `/swe-tester-plan` | Test strategy — frameworks, pyramid, coverage map, Definition of Done | Tester |
-| `/swe-sprint` | Execute the task cycle: tester(Red) → developer(Green) → reviewer → designer/UX → DONE | CEO |
+| `/swe-sprint` | Task cycle: tester(Red) → architect verifies tests → developer(Green) → reviewer → designer/UX → DONE. Milestone checkpoint: manual QA → client review | CEO |
 | `/swe-brief` | CEO revisits product vision, checks reality vs plan, updates strategic documents | CEO |
 | `/swe-sync` | Quick sync — CEO reviews recent changes, updates knowledge base | CEO |
 
@@ -158,8 +158,9 @@ This is the most important rule in the system. The person who writes the spec (t
 /swe-sprint            For each task:
                          ┌─ interface contract (architect, if new module)
                          ├─ tester writes failing tests (Red)
+                         ├─ architect verifies test-spec alignment
                          ├─ developer makes them green (Green)
-                         ├─ reviewer verifies (Iron Rule + robustness + quality)
+                         ├─ reviewer verifies (Iron Rule + anti-cheat + test-spec + quality)
                          ├─ designer checks visual fidelity (UI tasks)
                          ├─ UX engineer checks usability (UI tasks)
                          └─ DONE → next task
@@ -279,7 +280,7 @@ claude-swe-plugin/
 | **CEO Brain Loader** | `SessionStart` | Loads `.claude/ceo-brain.md` into context. If missing, reminds to run `/swe-init`. |
 | **Iron Rule Enforcer** | `PreToolUse` (Edit\|Write) | **Mechanically BLOCKS** developer from editing test files and tester from editing production files. Uses `agent_type` to identify who's editing. Language-agnostic: covers JS/TS, Python, Ruby, Go, Rust, Java, C/C++, Swift, Dart, Elixir, PHP, C#, Haskell, Lua, Shell, and more. |
 | **Auto-Formatter** | `PostToolUse` (Edit\|Write) | Runs the project's formatter after every code edit. Tries prettier/biome first, falls back to language-specific tools (gofmt, rustfmt, black, rubocop, clang-format, etc.). Async, non-blocking. |
-| **Save Progress Guard** | `Stop` | **Blocks session end** if tasks are still `IN_PROGRESS`, uncommitted changes exist, or CEO brain is stale. Forces saving work before leaving. |
+| **Save Progress Guard** | `Stop` | **Warns** if tasks are still `IN_PROGRESS`, uncommitted changes exist, or CEO brain is stale. Reminds to save work before leaving. |
 | **Post-Commit Reminder** | `PostToolUse` (Bash) | After `git commit`, reminds to update task status in `.claude/tasks/`. |
 
 The Iron Rule hook is the most important — it provides **mechanical enforcement**, not just prompt-based rules. Even if an agent "forgets" the rule, the hook physically blocks the write.
@@ -288,15 +289,15 @@ The Iron Rule hook is the most important — it provides **mechanical enforcemen
 
 This is not a web-only plugin. It adapts to whatever you're building:
 
-| Project Type | Designer | UX Engineer | Architect | DBA | DevOps |
-|---|---|---|---|---|---|
-| **Web App** | HTML+Tailwind prototypes | Full heuristic + a11y audit | Modular monolith / hexagonal | Postgres + JSONB | Vercel/Railway + CDN |
-| **Mobile App** | HTML mobile viewport | Touch targets, thumb zones, HIG | Clean Architecture MVVM | SQLite / Core Data | App store handoff guides |
-| **CLI Tool** | Terminal mockups, shell scripts | Help text, flags, `NO_COLOR` | Plugin architecture | Flat files / SQLite | Homebrew/cargo publish |
-| **API/SDK** | Code examples, README docs | DX: naming, errors, docs | Clear public surface, semver | Depends on domain | Docs hosting, versioning |
-| **Game** | Screen mockups, HUD layout | Controls, onboarding, menus | ECS / scene graph | Depends on persistence | Build pipeline, distribution |
-| **Blockchain** | State diagrams | Config ergonomics | Consensus + state machine | Embedded / distributed | Node deployment |
-| **Backend/Infra** | Architecture diagrams | Error logging, config | Event-driven / pipeline | Domain-specific | Cloud setup, monitoring |
+| Project Type | Designer | UX Engineer | Manual QA | Architect | DBA | DevOps |
+|---|---|---|---|---|---|---|
+| **Web App** | HTML+Tailwind prototypes | Full heuristic + a11y audit | Playwright: viewports, forms, keyboard | Modular monolith / hexagonal | Postgres + JSONB | Vercel/Railway + CDN |
+| **Mobile App** | HTML mobile viewport | Touch targets, thumb zones, HIG | Playwright: viewport sim, gestures | Clean Architecture MVVM | SQLite / Core Data | App store handoff guides |
+| **CLI Tool** | Terminal mockups, shell scripts | Help text, flags, `NO_COLOR` | Bash: flags, pipes, exit codes, stderr | Plugin architecture | Flat files / SQLite | Homebrew/cargo publish |
+| **API/SDK** | Code examples, README docs | DX: naming, errors, docs | Bash + curl: payloads, auth, rate limits | Clear public surface, semver | Depends on domain | Docs hosting, versioning |
+| **Game** | Screen mockups, HUD layout | Controls, onboarding, menus | Playwright/Bash: rapid inputs, state | ECS / scene graph | Depends on persistence | Build pipeline, distribution |
+| **Blockchain** | State diagrams | Config ergonomics | Bash: tx edge cases, config | Consensus + state machine | Embedded / distributed | Node deployment |
+| **Backend/Infra** | Architecture diagrams | Error logging, config | Bash: health, load, restart, config | Event-driven / pipeline | Domain-specific | Cloud setup, monitoring |
 
 ## Philosophy
 
@@ -316,6 +317,8 @@ Built on the shoulders of:
 - **Sandi Metz** — "Duplication is far cheaper than the wrong abstraction"
 - **Codd & Date** — Relational theory, normalization
 - **Markus Winand** — SQL performance, "Use The Index, Luke"
+- **James Bach** — Exploratory Testing 3.0, Session-Based Test Management
+- **Michael Bolton** — Context-driven testing, exploratory vs scripted
 
 ## License
 
