@@ -57,6 +57,14 @@ If the task creates NEW functions, modules, or APIs that don't exist yet, the te
 
 **Skip this step** if the task modifies existing code (the existing signatures ARE the contract).
 
+## Step 2.5b: Size check — is this task small enough?
+
+Before sending to tester, check the task size:
+- Count the acceptance criteria (including visual criteria if any)
+- **1-3 criteria (S):** proceed
+- **4-6 criteria (M):** proceed, but watch for tester/developer struggling
+- **7+ criteria:** **STOP. Split the task.** Send **architect** to break it into smaller tasks, then pick the first sub-task. A big task will degrade agent quality — tester writes worse tests, developer writes worse code.
+
 ## Step 3: Tester writes tests (Red)
 
 Update task status to `TESTING` in `.claude/tasks/TASK-{N}.md`.

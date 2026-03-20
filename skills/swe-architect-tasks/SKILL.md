@@ -63,17 +63,35 @@ Send **architect** with this brief:
 > - **Negotiable** — captures intent, not rigid implementation details
 > - **Valuable** — delivers observable value to the user or the system
 > - **Estimable** — clear enough to size (if not, create a spike)
-> - **Small** — completable in 1-3 days by one developer
+> - **Small** — 1-3 acceptance criteria is ideal, 4-6 is the max. Smaller = better agent quality
 > - **Testable** — has clear pass/fail acceptance criteria
 >
-> ### 4. Size Each Task
+> ### 4. Size Each Task — SPLIT AGGRESSIVELY
 >
-> Use T-shirt sizing:
-> - **S** — half day (2-4 hours)
-> - **M** — one day (4-8 hours)
-> - **L** — two to three days
+> **Smaller tasks = better agent quality.** Each task runs through tester → developer → reviewer, each with isolated context. The smaller the task, the less context each agent needs, the better the results.
 >
-> Anything larger than L MUST be split further. Create **spike** tasks for unknowns — time-boxed research (S or M) that produces a decision or proof of concept, not code.
+> **Prefer many S tasks over fewer M tasks. Prefer M over L. Avoid L whenever possible.**
+>
+> Use T-shirt sizing based on complexity, NOT time:
+> - **S** — 1-3 acceptance criteria, touches 1-2 files, one clear concern (e.g., "add email validation to signup form", "add loading spinner to dashboard")
+> - **M** — 4-6 acceptance criteria, touches 3-5 files, one feature slice (e.g., "user login with error handling", "product card with image, price, and add-to-cart")
+> - **L** — 7+ acceptance criteria, touches 5+ files. **This is a warning sign — try to split further.**
+>
+> **Splitting rules:**
+> - **L MUST be split** into S or M tasks. No exceptions.
+> - **M SHOULD be split** if it has more than 5 acceptance criteria or touches more than one screen/endpoint.
+> - If you can't decide whether to split — **split.** Two small tasks are always better than one medium task.
+>
+> **How to split:**
+> - **By acceptance criteria:** Group related criteria into separate tasks. "Login form" and "login error handling" are two tasks, not one.
+> - **By screen section:** "Header with nav" and "Hero section" and "Footer" are three tasks, not "Build the landing page."
+> - **By data operation:** "Create user" and "Update user profile" and "Delete account" are three tasks, not "User CRUD."
+> - **By error path:** Happy path in one task, error handling in another. "Submit order" and "Handle payment failures" are separate.
+> - **By integration boundary:** "Save to database" and "Send confirmation email" are separate even if they're part of one user flow.
+>
+> **The test:** Can the tester write ALL tests for this task without reading more than 2-3 files of existing code? If not, the task is too big.
+>
+> Create **spike** tasks for unknowns — time-boxed research (always S) that produces a decision or proof of concept, not code.
 >
 > ### 5. Write Acceptance Criteria
 >
@@ -243,7 +261,7 @@ Send **architect** with this brief:
 > - Overview goes in `_overview.md` — milestones, critical path, parallelization, Definition of Done.
 > - Walking skeleton is ALWAYS Milestone 0. No exceptions.
 > - Every task is a vertical slice unless it's scaffolding or infrastructure.
-> - No task larger than L (3 days). Split or spike.
+> - No L-sized tasks — always split into S or M. Prefer S.
 > - Every task has acceptance criteria. No exceptions.
 > - Dependencies are explicit. No hidden coupling.
 > - The critical path is highlighted. The team must know what blocks everything.
@@ -254,11 +272,15 @@ Send **architect** with this brief:
 
 When the architect returns, read the task breakdown yourself. Check:
 
+- **Tasks small enough?** This is the MOST IMPORTANT check. Count acceptance criteria per task:
+  - S (1-3 criteria): ideal
+  - M (4-6 criteria): acceptable
+  - L (7+ criteria): **send back to split**
+  - If most tasks are M or L, the decomposition is too coarse — send architect back with: "Split further. Prefer S tasks. Each agent works better with smaller scope."
 - **Walking skeleton makes sense?** Is it truly end-to-end? Is it thin enough?
 - **Vertical slices?** No horizontal "build all X" tasks?
-- **Sizes reasonable?** Nothing bigger than L? Spikes for unknowns?
 - **Dependencies minimize bottlenecks?** Enough parallelism?
-- **Acceptance criteria clear?** Could a developer start working from these?
+- **Acceptance criteria clear?** Could a tester write tests from these without ambiguity?
 - **TDD flow specified?** Tester writes tests first for each implementation task?
 - **100% coverage?** Does the task list account for everything in the system design?
 
