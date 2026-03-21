@@ -17,7 +17,7 @@
           {
             "type": "command",
             "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/iron-rule-check.sh",
-            "statusMessage": "Checking Iron Rule..."
+            "statusMessage": "Checking separation..."
           }
         ]
       }

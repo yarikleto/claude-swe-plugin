@@ -1,5 +1,6 @@
 #!/bin/bash
-# Iron Rule enforcement: developer can't touch test files, tester can't touch production files
+# Separation enforcement: tester can't touch production files
+# Developer has full freedom (including writing tests, but not modifying existing ones — reviewer catches that)
 # This hook runs on PreToolUse for Edit and Write tools
 # Language/framework agnostic — covers all known test conventions
 
@@ -97,20 +98,14 @@ is_test_file() {
   return 1
 }
 
-# DEVELOPER trying to edit a test file → BLOCK
-if [ "$AGENT_TYPE" = "developer" ]; then
-  if is_test_file; then
-    echo "IRON RULE VIOLATION: Developer attempted to edit test file: $FILE_PATH" >&2
-    echo "Tests are the tester's exclusive domain. Report the issue to CEO instead." >&2
-    exit 2
-  fi
-fi
+# DEVELOPER has full freedom — can write production code AND tests
+# (Reviewer catches unauthorized modifications to existing tests from previous tasks)
 
 # TESTER trying to edit a non-test file → BLOCK
 if [ "$AGENT_TYPE" = "tester" ]; then
   if ! is_test_file; then
-    echo "IRON RULE VIOLATION: Tester attempted to edit production file: $FILE_PATH" >&2
-    echo "Production code is the developer's exclusive domain. Report the issue to CEO instead." >&2
+    echo "SEPARATION VIOLATION: Tester attempted to edit production file: $FILE_PATH" >&2
+    echo "Production code is the developer's domain. Report the issue to CEO instead." >&2
     exit 2
   fi
 fi

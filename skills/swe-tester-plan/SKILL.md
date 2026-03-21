@@ -38,7 +38,7 @@ Send **tester** with this brief:
 >
 > ## 1. Testing Philosophy
 > <!-- State the testing approach for THIS project:
->      - TDD: tests written before code, always
+>      - QA verification: tests written after implementation to verify the feature works
 >      - Testing pyramid or trophy? Why?
 >      - What's the target distribution? (e.g., 70% unit / 20% integration / 10% E2E)
 >      - Classicist or mockist approach? Why for this project? -->
@@ -170,7 +170,7 @@ Send **tester** with this brief:
 > - The test coverage map must account for every task in `.claude/tasks/`.
 > - Test design techniques must be specific to each area, not generic.
 > - Be practical. Don't propose 500 E2E tests for a 10-task MVP.
-> - TDD is non-negotiable. Tests first, always.
+> - Every feature gets verified with tests after implementation. Tests check behavior, not implementation details.
 
 ## Step 3: Review
 
@@ -186,7 +186,7 @@ If issues, send tester back with feedback.
 ## Step 4: Update CEO brain
 
 Update `.claude/ceo-brain.md`:
-- "Current State" → test strategy defined, ready to start TDD cycle
+- "Current State" → test strategy defined, ready to start development
 - "Key Decisions Log" → test plan approved: {framework}, {approach}
 
 ## Step 5: Present to client
@@ -194,7 +194,7 @@ Update `.claude/ceo-brain.md`:
 Brief summary:
 - "Here's how we'll ensure quality: {approach in one sentence}"
 - "Test frameworks: {choices}"
-- "Every feature gets tests BEFORE code (TDD)"
+- "Every feature gets verified with tests after implementation"
 - "Critical paths covered by E2E: {list}"
 
 Ask: "Any concerns? Ready to start building?"

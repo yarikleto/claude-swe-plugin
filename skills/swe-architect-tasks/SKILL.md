@@ -127,12 +127,12 @@ Send **architect** with this brief:
 >
 > The longest chain of dependent tasks. Highlight it — this is what determines the total project timeline. All non-critical tasks have slack and can be scheduled flexibly.
 >
-> ### 8. Define the TDD Flow for Each Task
+> ### 8. Define the Execution Flow for Each Task
 >
 > For each implementation task, the execution order is:
-> 1. **Tester** writes tests first (acceptance tests based on the criteria)
-> 2. **Developer** implements until all tests pass
-> 3. **Reviewer** reviews the code
+> 1. **Developer** implements the feature with full freedom
+> 2. **Tester** (QA) verifies the goal is achieved with tests
+> 3. **Reviewer** reviews code and test quality
 >
 > Note this in the task structure so the team knows the workflow.
 >
@@ -163,22 +163,19 @@ Send **architect** with this brief:
 >
 > | Status | Meaning | Next Step |
 > |--------|---------|-----------|
-> | `TODO` | Not started | Tester picks it up |
-> | `TESTING` | Tester is writing failing tests | Wait for tester |
-> | `READY` | Failing tests written, ready for dev | Developer picks it up |
+> | `TODO` | Not started | Developer picks it up |
 > | `IN_PROGRESS` | Developer is implementing | Wait for developer |
-> | `IN_REVIEW` | Developer done, reviewer checking | Wait for reviewer |
+> | `VERIFYING` | Developer done, QA writing verification tests | Wait for tester |
+> | `IN_REVIEW` | QA verified, reviewer checking | Wait for reviewer |
 > | `CHANGES_REQUESTED` | Reviewer found issues | Developer or tester fixes (see reviewer notes) |
 > | `DONE` | Reviewer approved, all criteria met | Move to next task |
 > | `BLOCKED` | Waiting on another task or external dependency | Resolve blocker first |
 >
 > ## Definition of Done (applies to ALL tasks)
-> - [ ] Tester wrote failing tests FIRST (Red)
-> - [ ] Developer made tests green WITHOUT touching test files
+> - [ ] Developer implemented the feature (goal achieved)
+> - [ ] QA verified with tests (all acceptance criteria confirmed)
 > - [ ] All tests pass (new + regression)
-> - [ ] Reviewer verified Iron Rule (developer didn't touch tests, tester didn't touch code)
-> - [ ] Reviewer verified acceptance criteria are met
-> - [ ] Reviewer approved code quality
+> - [ ] Reviewer verified goal is achieved and code quality is acceptable
 > - [ ] No linter/typecheck warnings
 > - [ ] Status updated to `DONE`
 >
@@ -243,7 +240,7 @@ Send **architect** with this brief:
 > **Visual Criteria:** {from design-spec.md screen section, or "N/A"}
 > - [ ] {visual criterion, e.g. "Card has shadow-sm, radius-lg, hover:shadow-md"}
 > **Suggested Approach (optional):** {brief hints or considerations — the developer decides the actual implementation}
-> **Cycle:** tester (Red) → developer (Green) → reviewer (verify) → designer (visual check, if UI task) → `DONE`
+> **Cycle:** developer → QA (verification tests) → reviewer → designer (visual check, if UI task) → `DONE`
 > ````
 >
 > ### File: `.claude/tasks/SPIKE-001.md`
@@ -269,7 +266,7 @@ Send **architect** with this brief:
 > - Dependencies are explicit. No hidden coupling.
 > - The critical path is highlighted. The team must know what blocks everything.
 > - Nice-to-haves are marked with ~ and can be cut.
-> - TDD flow is explicit: tester → developer → reviewer.
+> - Execution flow is explicit: developer → QA → reviewer.
 
 ## Step 3: Review the task breakdown
 
@@ -284,8 +281,8 @@ When the architect returns, read the task breakdown yourself. Check:
 - **Vertical slices?** No horizontal "build all X" tasks?
 - **Dependencies minimize bottlenecks?** Enough parallelism?
 - **Goals, not instructions?** Does each task describe WHAT to achieve, not HOW to implement? If you see file paths, function names, or step-by-step implementation in the Goal field — send back: "Describe the goal, not the implementation. The developer decides how."
-- **Acceptance criteria clear?** Could a tester write tests from these without ambiguity?
-- **TDD flow specified?** Tester writes tests first for each implementation task?
+- **Acceptance criteria clear?** Could QA verify these without ambiguity?
+- **Execution flow specified?** Developer → QA → reviewer for each implementation task?
 - **100% coverage?** Does the task list account for everything in the system design?
 
 If issues, send architect back with specific feedback.

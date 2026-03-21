@@ -1,6 +1,6 @@
 ---
 name: swe-sprint
-description: CEO runs the task execution cycle — picks the next task, sends tester to write failing tests, developer to implement, reviewer to verify Iron Rule and quality. Updates task status in .claude/tasks/. Repeats until milestone is complete. Use when ready to start building.
+description: CEO runs the task execution cycle — picks the next task, sends developer to implement with full freedom, then QA verifies the goal is achieved with tests, reviewer checks quality. Updates task status in .claude/tasks/. Repeats until milestone is complete. Use when ready to start building.
 user-invocable: true
 allowed-tools: Read, Grep, Glob, Bash, Write, Edit, Agent
 argument-hint: "[task-id to start from, e.g. TASK-003] [--milestone N to run a full milestone]"
@@ -71,7 +71,7 @@ On the VERY FIRST sprint, before any task cycle, handle project scaffolding:
 1. Send **developer** to create the project skeleton: `package.json` / `Cargo.toml` / `go.mod`, directory structure, basic configs, `.gitignore`, `.env.example`. This is `Type: setup` — no tests needed.
 2. Send **tester** to set up the test infrastructure: install test framework, create test config (`jest.config`, `vitest.config`, `pytest.ini`, etc.), create test directory structure, verify the test runner works with a trivial passing test.
 3. Send **devops** to create `Dockerfile`, `docker-compose.yml`, CI pipeline (`.github/workflows/ci.yml`), health check stub.
-4. **Commit all three as a single "bootstrap" commit.** This is the only time the Iron Rule is relaxed — both developer and tester touch config files to set up their respective environments.
+4. **Commit all three as a single "bootstrap" commit.**
 
 After bootstrap: the project builds, the test runner runs, CI works. Now the normal cycle begins.
 
@@ -88,92 +88,15 @@ Use `Grep` to scan `.claude/tasks/` for task statuses (`**Status:**`). Find the 
 Announce which task you're starting:
 > "Starting TASK-{N}: {name}. Size: {S/M/L}."
 
-## Step 2.5: Behavior contract (for tasks introducing new capabilities)
+## Step 2.5: Size check — is this task small enough?
 
-If the task creates NEW user-facing behavior that doesn't exist yet, the tester needs to understand the expected behavior before writing tests. Send **architect** (quick, 1-2 turns) to define the behavior contract:
-
-> If `.claude/agent-notes/architect.md` exists, read it FIRST and follow those instructions.
->
-> For TASK-{N}, define the expected behavior contract:
-> - What inputs the feature accepts (data types, formats, boundaries)
-> - What outputs/results the feature produces
-> - What error cases exist and what the user/system should experience
-> - Integration points with existing features (if any)
->
-> Do NOT prescribe implementation details (function names, file paths, class structure) — that's the developer's decision. Focus on WHAT the feature does, not HOW it's built. Save to `.claude/contracts/TASK-{N}.md`.
-
-**Skip this step** if the task modifies existing code (the existing behavior IS the contract).
-
-## Step 2.5b: Size check — is this task small enough?
-
-Before sending to tester, check the task size:
+Before sending to developer, check the task size:
 - Count the acceptance criteria (including visual criteria if any)
 - **1-3 criteria (S):** proceed
 - **4-6 criteria (M):** proceed, but watch for tester/developer struggling
 - **7+ criteria:** **STOP. Split the task.** Send **architect** to break it into smaller tasks, then pick the first sub-task. A big task will degrade agent quality — tester writes worse tests, developer writes worse code.
 
-## Step 3: Tester writes tests (Red)
-
-Update task status to `TESTING` in `.claude/tasks/TASK-{N}.md`.
-
-Send **tester** with this brief:
-
-> If `.claude/agent-notes/tester.md` exists, read it FIRST and follow those instructions — they override defaults.
->
-> Task: TASK-{N}
-> Goal: {paste the task goal here}
-> Acceptance Criteria: {paste the acceptance criteria here}
->
-> If there's a behavior contract at `.claude/contracts/TASK-{N}.md`, read it to understand expected inputs, outputs, and error cases.
-> If modifying existing code, read the current code to understand existing behavior.
-> Also read `.claude/test-plan.md` for test framework, conventions, and file structure.
->
-> Write failing tests that verify the feature WORKS CORRECTLY — every acceptance criterion must have at least one test. Test observable behavior (inputs → expected outcomes), NOT implementation details (internal functions, call order, specific patterns). The developer must be free to implement however they choose.
->
-> You MAY import production code types and modules in your tests (reading is fine).
-> You MAY create test-only helpers, factories, and fixtures.
-> You MUST NOT modify any production source files.
->
-> Run the tests — they should fail (Red). Compilation errors count as failing.
-
-When tester returns, verify tests were written.
-
-### Step 3a: Architect verifies test-spec alignment
-
-Before committing, send **architect** to verify the tester didn't write wrong tests:
-
-> Review the tests written for TASK-{N}.
-> Read `.claude/tasks/TASK-{N}.md` for the task goal and acceptance criteria.
-> Read `.claude/system-design.md` for the architecture context.
-> If a behavior contract exists at `.claude/contracts/TASK-{N}.md`, read that too.
-> Read the test files the tester created.
->
-> Check:
-> 1. **Criteria coverage:** Does every acceptance criterion have at least one test that actually verifies it? Not just a test that mentions it — a test whose assertions would fail if the criterion weren't met.
-> 2. **Correct assertions:** Do the tests assert what the criteria actually ask for? Watch for subtle mismatches (e.g., testing 200 when spec says 201, testing field exists when spec says field is validated, testing happy path when spec requires error handling).
-> 3. **Wrong assumptions:** Did the tester misinterpret a requirement? (e.g., testing a field as optional when the spec says required, using wrong boundary values, expecting the wrong error type)
-> 4. **Over-specification (CRITICAL):** Do any tests lock in implementation details that the task goal doesn't mandate? (e.g., asserting internal method calls, exact SQL queries, specific function names, specific class structure, call order). Tests must verify BEHAVIOR (inputs → expected outcomes), not HOW the code is structured. The developer must be free to implement however they choose.
->
-> Return: PASS (tests verify behavior correctly) or FAIL with specific issues (which test, what it asserts, what the spec actually says).
-
-**If architect says PASS:** Commit and continue.
-
-**If architect says FAIL:**
-- Send **tester** back with the architect's specific feedback to fix the tests.
-- After tester fixes, architect re-verifies. Max 1 round — if still misaligned, circuit breaker.
-
-**Skip this step** for S-sized tasks with straightforward acceptance criteria (e.g., "add a field", "rename X to Y"). Use judgment — if the criteria are simple and unambiguous, the overhead isn't worth it.
-
-**Commit tester's work:**
-```
-git add -A && git commit -m "test(TASK-{N}): failing tests — {brief description}"
-```
-
-Update task status to `READY` in `.claude/tasks/TASK-{N}.md`.
-
-**Skip this step** for tasks marked `Type: setup`, `Type: refactor`, or `Type: performance`.
-
-## Step 4: Developer implements (Green)
+## Step 3: Developer implements
 
 Update task status to `IN_PROGRESS` in `.claude/tasks/TASK-{N}.md`.
 
@@ -187,59 +110,70 @@ Send **developer** with this brief:
 > Visual Criteria: {paste visual criteria here, if any}
 > Suggested Approach: {paste if exists, or omit — this is optional, you decide how to implement}
 >
-> Your PRIMARY objective is to implement the task goal correctly. The acceptance criteria define "done."
-> The tester has written failing tests — they verify the feature works. Read them as a sanity check, but focus on implementing the feature properly, not just satisfying test assertions.
+> Your objective is to implement the task goal correctly. The acceptance criteria define "done."
 > Read the relevant system design sections in `.claude/system-design.md`.
 > If the task has visual criteria, read `.claude/design-spec.md` — use the exact design tokens (colors, spacing, fonts, border-radius, shadows) specified there. Don't guess at visual values.
 > Read the existing codebase to match patterns and style.
 >
-> Implement the task correctly. You decide the approach — function names, file structure, patterns are your call.
+> You have FULL FREEDOM in how you implement this. Function names, file structure, patterns, architecture decisions within the task scope — all your call.
+> You MAY write your own tests if you want to verify something during development.
+> You MUST NOT modify or delete existing tests from previous tasks.
 > For UI tasks: match the design spec exactly. The designer will verify pixel-level.
 >
-> Remember: you MUST NOT touch any test files. Only production code.
->
-> Run the full test suite after implementation — new tests AND existing tests must all pass.
->
-> **If you believe a test is wrong:** Don't silently work around it. Report it clearly in your output: which test, what it asserts, what the spec actually says, and why you believe the test is incorrect. Provide evidence (quote the acceptance criteria, reference the system design). You may still implement the rest of the task — just flag the disputed test.
+> Run the existing test suite after implementation — all existing tests must still pass (no regressions).
 
-When developer returns, verify tests pass. **Commit developer's work:**
+When developer returns, verify existing tests still pass. **Commit developer's work:**
 ```
 git add -A && git commit -m "feat(TASK-{N}): implement — {brief description}"
 ```
 
+Update task status to `VERIFYING` in `.claude/tasks/TASK-{N}.md`.
+
+## Step 4: QA verifies with tests
+
+The developer has implemented the feature. Now send **tester** to verify the goal was achieved.
+
+Send **tester** with this brief:
+
+> If `.claude/agent-notes/tester.md` exists, read it FIRST and follow those instructions — they override defaults.
+>
+> Task: TASK-{N}
+> Goal: {paste the task goal here}
+> Acceptance Criteria: {paste the acceptance criteria here}
+>
+> The developer has already implemented this task. Your job is to VERIFY that the goal was achieved and the feature works correctly.
+>
+> Read the developer's implementation to understand what was built.
+> Read `.claude/test-plan.md` for test framework, conventions, and file structure.
+>
+> Write tests that confirm EVERY acceptance criterion is met. Test the feature's observable behavior — inputs, outputs, edge cases, error handling. Do NOT test implementation details (internal function names, call order, specific patterns). The tests must verify WHAT the feature does, not HOW it's built.
+>
+> If the developer already wrote some tests, review them and add what's missing.
+> You MUST NOT modify any production source files.
+>
+> Run ALL tests — both yours and existing. Everything must pass.
+> If a test FAILS, determine: is the implementation wrong, or is your test wrong?
+> Report clearly: which tests pass, which fail, and your assessment of whether the feature achieves its goal.
+
+When tester returns:
+
+**If all tests pass:** The feature works. Commit tester's tests:
+```
+git add -A && git commit -m "test(TASK-{N}): verification tests — {brief description}"
+```
 Update task status to `IN_REVIEW` in `.claude/tasks/TASK-{N}.md`.
 
-**Now the reviewer can `git diff` between the two commits to see exactly what each agent touched.**
+**If tests fail — tester says implementation is incomplete/wrong:**
+Send **developer** back with the specific test failures and tester's assessment. Developer fixes, tester re-verifies. Max 1 round — if still failing, circuit breaker.
 
-### Step 4a: Test dispute protocol
-
-The developer can challenge tests at ANY point — during implementation (can't make it green) or after (made it green but believes the test is wrong). Both are valid.
-
-**Case 1: Developer CANNOT make a test green** because the test is wrong (not the implementation):
-
-1. Developer explains specifically: which test, what it expects, why it's incorrect
-2. **Do NOT escalate to the client.** This is an internal issue.
-3. Send **tester** to investigate: "Developer says test X is wrong because Y. Verify and fix if needed."
-4. If tester agrees and fixes the test → commit → status back to `READY` → developer continues
-5. If tester disagrees → send **architect** to arbitrate based on system design → winner implements the decision
-6. Max 1 dispute round per task. If still unresolved → circuit breaker.
-
-**Case 2: Developer MADE tests green but flags a test as wrong:**
-
-The developer implemented to the test but reports: "I made test X pass, but it's testing the wrong thing — the spec says Y, the test asserts Z."
-
-1. Note the developer's concern — include it in the reviewer brief (Step 5)
-2. Reviewer evaluates the dispute as part of Test-Spec Alignment (Responsibility 3)
-3. If reviewer agrees the test is wrong → `CHANGES REQUESTED (test-spec misalignment)` → tester fixes → developer re-implements
-4. If reviewer disagrees → the implementation stands, no action needed
-
-The developer's evidence-based challenge is a valuable signal. Developers read tests deeply during implementation and often spot mismatches that others miss.
+**If tests fail — tester says their own test is wrong:**
+Tester fixes the test. This is normal — the developer may have made a valid design choice the tester didn't anticipate.
 
 ### Special task types
 
-**`Type: setup`** (scaffolding): Developer only → reviewer. No tester, no designer/UX.
+**`Type: setup`** (scaffolding): Developer only → reviewer. No QA tests, no designer/UX.
 
-**`Type: refactor`**: Developer refactors → reviewer verifies same behavior + better structure. No tester writes new tests. Tester runs full regression suite AFTER reviewer approves. Acceptance criteria: structural (measurable: reduced duplication, extracted module, etc.) + "all existing tests still pass."
+**`Type: refactor`**: Developer refactors → tester runs full regression suite → reviewer verifies same behavior + better structure. Acceptance criteria: structural (measurable: reduced duplication, extracted module, etc.) + "all existing tests still pass."
 
 **`Type: performance`**: Researcher profiles first (identify bottleneck) → developer optimizes → tester runs benchmarks before/after. Acceptance criteria: measurable targets (e.g., "p95 response time < 200ms"). Tester creates benchmark tests, not unit tests.
 
@@ -258,17 +192,16 @@ Send **reviewer** with this brief:
 >
 > You MUST check in this order:
 >
-> **Iron Rule (check FIRST — non-negotiable):**
-> 1. Verify developer did NOT create, modify, or delete any test files
-> 2. Verify tester did NOT create, modify, or delete any production code files
+> **Separation of Concerns (check FIRST):**
+> 1. Verify tester did NOT create, modify, or delete any production code files
+> 2. Verify developer did NOT modify or delete existing tests from previous tasks (developer MAY have added new tests)
 >
 > **Anti-Cheat (verify implementation is genuine):**
 > 3. Check for hardcoded values, test-fitted conditionals, stubs, incomplete implementation
 >
-> **Test-Spec Alignment:**
-> 4. Verify tests match the acceptance criteria — correct assertions, no wrong assumptions
-> 5. CRITICAL: verify tests don't over-specify implementation details (internal method calls, specific patterns, class structure). Tests must verify BEHAVIOR, not HOW the code is built. The developer must be free to refactor internals without breaking tests.
-> {IF developer flagged a test dispute: "The developer flagged a concern: {paste developer's dispute}. Evaluate this as part of your test-spec alignment check."}
+> **Test Quality:**
+> 4. Verify QA tests cover all acceptance criteria — correct assertions, no wrong assumptions
+> 5. CRITICAL: verify tests don't over-specify implementation details (internal method calls, specific patterns, class structure). Tests must verify BEHAVIOR, not HOW the code is built.
 >
 > **Goal & Test Results:**
 > 6. Run the full test suite — all tests must pass
@@ -381,12 +314,12 @@ Read the reviewer's feedback carefully.
 
 Repeat until reviewer approves.
 
-### If BLOCKER (Iron Rule violation):
+### If BLOCKER:
 This is a hard stop. Announce to the client:
 > "BLOCKER: {what happened}. Rolling back to clean state."
 
-- If developer touched tests: developer must revert those changes. Tester re-owns the test files.
 - If tester touched production code: tester must revert. Developer re-owns.
+- If developer deleted/broke existing tests from previous tasks: developer must revert.
 
 Then re-run the full cycle for this task from Step 3.
 
@@ -579,8 +512,8 @@ After collecting ALL verdicts (designer, UX, manual QA, client), YOU (CEO) synth
 ## Parallelization
 
 When multiple tasks in the same milestone have NO dependencies on each other:
-- Send multiple testers in parallel (different tasks)
-- Once tests are ready, send multiple developers in parallel
+- Send multiple developers in parallel (different tasks)
+- Once implementations are ready, send multiple testers in parallel to verify
 - Review sequentially (reviewer needs full attention per task)
 
 Announce when parallelizing:
@@ -592,34 +525,34 @@ You are spending the client's time and money (tokens). You MUST stop the cycle a
 
 ### Trigger 1: Retry Loop (max 2 attempts per task)
 
-If a task goes through the cycle **tester → developer → reviewer** and gets `CHANGES_REQUESTED` or `BLOCKER`, the developer gets ONE retry. If the reviewer rejects a SECOND time for the same task:
+If a task goes through the cycle **developer → tester → reviewer** and gets `CHANGES_REQUESTED` or `BLOCKER`, the developer gets ONE retry. If the reviewer rejects a SECOND time for the same task:
 
 **STOP.** Tell the client:
 > "TASK-{N} has failed review twice. Here's what's happening: {summary of reviewer's feedback}.
 > This might mean: {your diagnosis — is the task too big? is the design wrong? is the acceptance criteria unclear?}
 > Options: (1) I break this task into smaller pieces, (2) We revisit the design for this part, (3) You clarify the requirement, (4) We skip this and move on."
 
-### Trigger 2: Tester Can't Write Tests
+### Trigger 2: Developer Can't Implement
 
-If the tester reports they cannot write meaningful tests because:
-- The acceptance criteria are too vague
-- The system design doesn't cover this area
-- The task requires testing infrastructure that doesn't exist yet
-
-**STOP.** Tell the client:
-> "I can't start TASK-{N} because {reason}. We need to {clarify criteria / update the design / set up test infra} first.
-> Here's what I think we should do: {your recommendation}. Agree?"
-
-### Trigger 3: Developer Can't Make Tests Green
-
-If the developer reports they cannot pass the tests because:
-- The tests expect behavior that contradicts the system design
+If the developer reports they cannot implement the task because:
+- The acceptance criteria are contradictory or too vague
 - The architecture makes this technically impossible as designed
 - A fundamental assumption in the design is wrong
 
 **STOP.** Tell the client:
 > "The developer hit a wall on TASK-{N}: {specific problem}.
 > This means our design needs to change in this area. Options: (1) I send the architect to revise, (2) We simplify the scope, (3) We drop this task."
+
+### Trigger 3: QA Can't Verify
+
+If the tester reports they cannot verify the implementation because:
+- The acceptance criteria are too vague to write meaningful tests
+- The implementation doesn't expose testable behavior
+- The task requires testing infrastructure that doesn't exist yet
+
+**STOP.** Tell the client:
+> "QA can't verify TASK-{N} because {reason}. We need to {clarify criteria / update the design / set up test infra} first.
+> Here's what I think we should do: {your recommendation}. Agree?"
 
 ### Trigger 4: All Tasks Blocked
 
@@ -647,13 +580,13 @@ If the developer or architect discovers during implementation that the system de
 > Fix: {your proposal — redesign this section / pivot approach / simplify}.
 > This is a Type 1 decision — I want your input before proceeding."
 
-### Trigger 7: Repeated Iron Rule Violations
+### Trigger 7: Repeated Separation Violations
 
-If the same agent violates the Iron Rule more than once across different tasks, something systemic is wrong:
+If the tester keeps touching production code, or the developer keeps breaking existing tests from previous tasks:
 
 **STOP.** Tell the client:
-> "The {developer/tester} keeps violating the Iron Rule. This usually means {the tests are too tightly coupled to implementation / the code isn't testable enough}.
-> I'm going to {send the architect to review the testability of the design / restructure how we brief the agents}."
+> "The {developer/tester} keeps crossing boundaries. This usually means {the tests are too tightly coupled to implementation / the code isn't testable enough}.
+> I'm going to {send the architect to review the design / restructure how we brief the agents}."
 
 ### Trigger 8: Client Priority Shift
 

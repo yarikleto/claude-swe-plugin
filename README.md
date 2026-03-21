@@ -96,13 +96,13 @@ Database-agnostic — chooses the right engine for the domain (relational, docum
 <td width="50%" valign="top">
 
 ### Developer
-Data structures first, code second (Torvalds). Makes TDD tests green, then refactors (Beck). Eliminates edge cases through better design, not conditionals (Torvalds' "good taste"). Immutability and pure functions by default (Hickey, Carmack). Owns documentation and DB migrations. **Forbidden from touching test files.**
+Data structures first, code second (Torvalds). Full freedom in implementation — chooses approach, patterns, structure. Eliminates edge cases through better design, not conditionals (Torvalds' "good taste"). Immutability and pure functions by default (Hickey, Carmack). May write own tests during development. Owns documentation and DB migrations. **Must not modify existing tests from previous tasks.**
 
-### Tester (TDD)
-Kent Beck's Three Laws of TDD. Writes failing tests BEFORE the developer writes code. Test list first, then Red-Green-Refactor. Equivalence partitioning, boundary values, state transitions, error guessing. Knows the test doubles taxonomy (Meszaros). **Forbidden from touching production code.**
+### Tester (QA)
+Verifies AFTER the developer implements. Writes tests to confirm the feature works as intended — behavior and outcomes, not implementation details. Equivalence partitioning, boundary values, state transitions, error guessing. Knows the test doubles taxonomy (Meszaros). **Forbidden from touching production code.**
 
 ### Reviewer
-Quadruple gatekeeper: (1) Iron Rule — verifies via `git diff` that developer didn't touch tests, tester didn't touch code. (2) Robustness — implementation is genuine, general, and robust (not fitted to test cases). (3) Test-Spec Alignment — tests actually match acceptance criteria, no wrong assumptions, no over-specification. Evaluates developer disputes. (4) Code quality — correctness, security, edge cases. Marks criteria checkboxes `[x]` on APPROVE. Nothing ships without APPROVE.
+Triple gatekeeper: (1) Separation — verifies tester didn't touch production code, developer didn't break existing tests. (2) Robustness — implementation is genuine, general, and robust (not fitted to test cases). (3) Test quality + code quality — tests verify behavior not implementation, acceptance criteria met, goal achieved. Marks criteria checkboxes `[x]` on APPROVE. Nothing ships without APPROVE.
 
 ### DevOps
 Full infrastructure stack: CI/CD, Docker, reverse proxy (Caddy/nginx/Traefik), caching (CDN + proxy + browser), load balancing, SSL/TLS (Mozilla profiles, auto-certs), compression (brotli/gzip, pre-compressed), rate limiting (3 layers: edge → gateway → app), structured logging (Loki/ELK, correlation IDs), environment management (dev/staging/prod parity, feature flags). Starts simple (PaaS > K8s). Creates handoff guides for client actions. Clear boundary with architect: architect decides WHAT, DevOps implements HOW it runs.
@@ -117,11 +117,11 @@ Intelligence analyst with 6 modes: market/domain research, codebase exploration,
 </tr>
 </table>
 
-## The Iron Rule
+## Separation of Concerns
 
-> **Developer MUST NOT touch test code. Tester MUST NOT touch production code.**
+> **Developer implements with full freedom (may write tests). Tester verifies with tests (must not touch production code).**
 
-This is the most important rule in the system. The person who writes the spec (tests) is never the person who implements it. The reviewer enforces this via `git diff` between agent commits — automatic BLOCKER on any violation.
+Developer goes first, QA verifies after. Developer can write their own tests during development but must not modify existing tests from previous tasks. Tester writes verification tests to confirm the goal was achieved — tests behavior, not implementation details.
 
 ## Skills
 
@@ -134,7 +134,7 @@ This is the most important rule in the system. The person who writes the spec (t
 | `/swe-devops-deploy` | Infrastructure — CI/CD, Docker, hosting, CDN, monitoring + client handoff guides | DevOps |
 | `/swe-architect-tasks` | Decompose system design into tasks with statuses, dependencies, acceptance criteria | Architect |
 | `/swe-tester-plan` | Test strategy — frameworks, pyramid, coverage map, Definition of Done | Tester |
-| `/swe-sprint` | Task cycle: tester(Red) → architect verifies tests → developer(Green) → reviewer → designer/UX → DONE. Milestone: all agents give verdicts → client reviews → CEO synthesizes | CEO |
+| `/swe-sprint` | Task cycle: developer implements → QA verifies with tests → reviewer → designer/UX → DONE. Milestone: all agents give verdicts → client reviews → CEO synthesizes | CEO |
 | `/swe-brief` | CEO revisits product vision, checks reality vs plan, updates strategic documents | CEO |
 | `/swe-sync` | Quick sync — CEO reviews recent changes, updates knowledge base | CEO |
 
@@ -156,11 +156,9 @@ This is the most important rule in the system. The person who writes the spec (t
 /swe-tester-plan       Test strategy, frameworks, coverage map
       ↓
 /swe-sprint            For each task:
-                         ┌─ interface contract (architect, if new module)
-                         ├─ tester writes failing tests (Red)
-                         ├─ architect verifies test-spec alignment
-                         ├─ developer makes them green (Green)
-                         ├─ reviewer verifies (Iron Rule + anti-cheat + test-spec + quality)
+                         ┌─ developer implements (full freedom, may write tests)
+                         ├─ QA verifies with tests (behavior, not implementation)
+                         ├─ reviewer verifies (separation + anti-cheat + test quality + code quality)
                          ├─ designer checks visual fidelity (UI tasks)
                          ├─ UX engineer checks usability (UI tasks)
                          └─ DONE → next task
@@ -173,11 +171,11 @@ This is the most important rule in the system. The person who writes the spec (t
 ## The Task Cycle
 
 ```
-TODO → TESTING → READY → IN_PROGRESS → IN_REVIEW → DONE
-                                            ↓
-                                     CHANGES_REQUESTED → fix → IN_REVIEW
-                                            ↓
-                                         BLOCKER → revert → TESTING
+TODO → IN_PROGRESS → VERIFYING → IN_REVIEW → DONE
+                                      ↓
+                               CHANGES_REQUESTED → fix → IN_REVIEW
+                                      ↓
+                                   BLOCKER → revert → IN_PROGRESS
 ```
 
 ### Special task types
@@ -199,12 +197,12 @@ Before the first task cycle, the bootstrap phase runs:
 The CEO stops the cycle and talks to the client when:
 
 - A task fails review **twice** (retry loop)
-- Tester **can't write tests** (unclear acceptance criteria)
-- Developer **can't pass tests** (design flaw)
+- Developer **can't implement** (design flaw, contradictory criteria)
+- QA **can't verify** (unclear criteria, untestable implementation)
 - **All tasks blocked** (nothing productive to do)
 - Task is **much bigger than estimated** (scope discovery)
 - **Design doesn't match reality** (fundamental flaw found)
-- Repeated **Iron Rule violations** (systemic problem)
+- Repeated **separation violations** (systemic problem)
 - Every **3-5 tasks**: pulse check with the client
 
 **Golden rule:** When in doubt, STOP and ASK. One clarifying question is cheaper than rebuilding the wrong thing.
@@ -221,7 +219,7 @@ claude-swe-plugin/
 │   └── hooks.json                  # 5 hooks (see Hooks section)
 ├── scripts/
 │   ├── session-start.sh            # Loads CEO brain into context
-│   ├── iron-rule-check.sh          # Blocks Iron Rule violations
+│   ├── iron-rule-check.sh          # Blocks tester from editing production files
 │   ├── auto-format.sh              # Runs formatter after edits
 │   ├── stop-save-progress.sh       # Warns about unsaved progress on session end
 │   └── post-commit-remind.sh       # Reminds to update task status
@@ -229,12 +227,12 @@ claude-swe-plugin/
 │   ├── architect.md                # Domain-agnostic system design, ADRs, C4
 │   ├── dba.md                      # Database-agnostic schema, migrations, integrity
 │   ├── designer.md                 # Prototypes, visual review, design spec
-│   ├── developer.md                # Implementation (forbidden from tests)
+│   ├── developer.md                # Implementation with full freedom (may write tests)
 │   ├── devops.md                   # CI/CD, infrastructure, handoff guides
 │   ├── manual-qa.md                # Exploratory testing, edge cases, cross-viewport
 │   ├── researcher.md               # 6-mode intelligence analyst
-│   ├── reviewer.md                 # Iron Rule + robustness + test-spec alignment + quality gate
-│   ├── tester.md                   # TDD, writes tests first (forbidden from code)
+│   ├── reviewer.md                 # Separation + robustness + test quality + code quality gate
+│   ├── tester.md                   # QA verification, writes tests after implementation (forbidden from production code)
 │   └── ux-engineer.md              # Nielsen's 10 heuristics, accessibility
 └── skills/
     ├── swe-init/SKILL.md           # Project kickoff
@@ -278,12 +276,12 @@ claude-swe-plugin/
 | Hook | Event | What it does |
 |------|-------|-------------|
 | **CEO Brain Loader** | `SessionStart` | Loads `.claude/ceo-brain.md` into context. If missing, reminds to run `/swe-init`. |
-| **Iron Rule Enforcer** | `PreToolUse` (Edit\|Write) | **Mechanically BLOCKS** developer from editing test files and tester from editing production files. Uses `agent_type` to identify who's editing. Language-agnostic: covers JS/TS, Python, Ruby, Go, Rust, Java, C/C++, Swift, Dart, Elixir, PHP, C#, Haskell, Lua, Shell, and more. |
+| **Separation Enforcer** | `PreToolUse` (Edit\|Write) | **Mechanically BLOCKS** tester from editing production files. Uses `agent_type` to identify who's editing. Developer has full freedom. Language-agnostic: covers JS/TS, Python, Ruby, Go, Rust, Java, C/C++, Swift, Dart, Elixir, PHP, C#, Haskell, Lua, Shell, and more. |
 | **Auto-Formatter** | `PostToolUse` (Edit\|Write) | Runs the project's formatter after every code edit. Tries prettier/biome first, falls back to language-specific tools (gofmt, rustfmt, black, rubocop, clang-format, etc.). Async, non-blocking. |
 | **Save Progress Guard** | `Stop` | **Warns** if tasks are still `IN_PROGRESS`, uncommitted changes exist, or CEO brain is stale. Reminds to save work before leaving. |
 | **Post-Commit Reminder** | `PostToolUse` (Bash) | After `git commit`, reminds to update task status in `.claude/tasks/`. |
 
-The Iron Rule hook is the most important — it provides **mechanical enforcement**, not just prompt-based rules. Even if an agent "forgets" the rule, the hook physically blocks the write.
+The separation hook provides **mechanical enforcement** — even if the tester agent "forgets" the rule, the hook physically blocks the write to production files.
 
 ## Adapts to Any Project Type
 
@@ -306,7 +304,7 @@ Built on the shoulders of:
 - **Bezos** — Type 1/Type 2 decisions, Working Backwards, disagree and commit
 - **Jobs** — Focus = saying no, DRI (one person per task)
 - **Musk** — First principles, "the best part is no part"
-- **Kent Beck** — TDD, Red-Green-Refactor, "make it work, make it right, make it fast"
+- **Kent Beck** — "make it work, make it right, make it fast", test-driven thinking
 - **Torvalds** — Data structures first, "good taste" (eliminate edge cases through design)
 - **Dieter Rams** — "As little design as possible"
 - **Don Norman** — Affordances, signifiers, conceptual models
