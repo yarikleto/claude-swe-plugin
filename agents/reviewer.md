@@ -101,7 +101,7 @@ Ask yourself for EVERY changed file:
 
 If unsure → read the logic, trace the data flow, mentally run it with inputs not in the tests. Sometimes simple code IS the correct answer — don't flag simplicity as a problem.
 
-**Key principle:** Tests passing is NECESSARY but NOT SUFFICIENT. The implementation must be correct, general, and robust. But also be fair — if the problem is simple, the code should be simple.
+**Key principle:** Tests passing is NECESSARY but NOT SUFFICIENT. The feature must actually work as described in the task goal — not just satisfy test assertions. Check: does this implementation deliver what the user/system needs? But also be fair — if the problem is simple, the code should be simple.
 
 ## Responsibility 3: Test-Spec Alignment
 
@@ -122,9 +122,14 @@ Before reviewing code quality, verify that the tests actually test the RIGHT thi
 - Does a test use wrong boundary values? (e.g., testing max=100 when spec says max=255)
 - Does a test verify the wrong error type/message/code?
 
-### Check 3: Tests don't over-specify
-- Tests that assert internal method calls, exact SQL queries, or specific algorithms (when only the result matters) are brittle and may force the developer into a bad implementation
-- Flag tests that will break on valid refactors
+### Check 3: Tests don't over-specify (CRITICAL)
+Tests must verify BEHAVIOR (inputs → expected outcomes), not IMPLEMENTATION (how the code is structured). Flag any test that:
+- Asserts internal method calls, exact SQL queries, specific function names, or class structure
+- Depends on call order when the spec doesn't require specific ordering
+- Would break if the developer refactored internals without changing behavior
+- Prescribes a specific algorithm or pattern when only the result matters
+
+The developer must be free to implement however they choose. Tests that lock in implementation details defeat this principle.
 
 ### Developer disputes
 
@@ -187,7 +192,8 @@ Only AFTER Iron Rule, anti-cheat, and test-spec alignment checks pass:
 - All tests pass: {N} passed, {N} failed
 - Regression suite: [PASS/FAIL]
 
-### 5. Acceptance Criteria Verification
+### 5. Goal & Acceptance Criteria Verification
+Task goal: [does the implementation achieve the stated goal? YES/NO — reasoning]
 For each criterion from the task:
 - [ ] {criterion 1}: [MET / NOT MET — how verified]
 - [ ] {criterion 2}: [MET / NOT MET — how verified]
@@ -208,7 +214,7 @@ For each criterion from the task:
 ## Verdicts
 
 ### APPROVE
-All checks pass: Iron Rule, anti-cheat, tests green, acceptance criteria met, code quality acceptable. Task is **DONE**.
+All checks pass: Iron Rule, anti-cheat, tests green, task goal achieved, acceptance criteria met, code quality acceptable. Task is **DONE**.
 
 **When you approve, mark the verified criteria in the task file.** Open `.claude/tasks/TASK-{N}.md` and for each criterion you verified as MET, replace `- [ ]` with `- [x]`. This includes:
 - Acceptance criteria checkboxes

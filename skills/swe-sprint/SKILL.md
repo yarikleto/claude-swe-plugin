@@ -266,16 +266,18 @@ Send **reviewer** with this brief:
 > 3. Check for hardcoded values, test-fitted conditionals, stubs, incomplete implementation
 >
 > **Test-Spec Alignment:**
-> 4. Verify tests actually match the acceptance criteria — correct assertions, no wrong assumptions, no over-specification
+> 4. Verify tests match the acceptance criteria — correct assertions, no wrong assumptions
+> 5. CRITICAL: verify tests don't over-specify implementation details (internal method calls, specific patterns, class structure). Tests must verify BEHAVIOR, not HOW the code is built. The developer must be free to refactor internals without breaking tests.
 > {IF developer flagged a test dispute: "The developer flagged a concern: {paste developer's dispute}. Evaluate this as part of your test-spec alignment check."}
 >
-> **Test Results:**
-> 5. Run the full test suite — all tests must pass
-> 6. Verify each acceptance criterion is met
+> **Goal & Test Results:**
+> 6. Run the full test suite — all tests must pass
+> 7. Verify the task GOAL is achieved — does the feature actually work as intended?
+> 8. Verify each acceptance criterion is met
 >
 > **Code Quality (only if above all pass):**
-> 7. Review production code for correctness, security, edge cases
-> 8. Review test code for coverage quality and test design
+> 9. Review production code for correctness, security, edge cases
+> 10. Review test code for coverage quality and test design
 >
 > **If APPROVE:** Mark every verified criterion as `[x]` in `.claude/tasks/TASK-{N}.md` (acceptance criteria, visual criteria, UX criteria). Only mark what you actually verified.
 >
