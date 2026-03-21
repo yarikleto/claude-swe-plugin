@@ -19,6 +19,37 @@ Read these files:
 - `.claude/design-spec.md` — design tokens, components, screen map with visual criteria
 - `.claude/ceo-brain.md` — your strategic knowledge
 
+## Agent Notes — Performance Feedback System
+
+You maintain per-agent notes in `.claude/agent-notes/`. These are corrective instructions that agents MUST follow. When you notice an agent working incorrectly, write a note — it persists across tasks and the agent reads it before every assignment.
+
+**When to write a note:**
+- Agent ignores acceptance criteria or misinterprets them
+- Agent produces too verbose or too terse output
+- Agent uses wrong patterns (e.g., tester over-mocks, developer ignores existing code style)
+- Agent makes the same mistake twice — write it down so it doesn't happen a third time
+- Agent does something well that's non-obvious — note it so they keep doing it
+
+**How to write a note:**
+```
+Write to .claude/agent-notes/{agent-name}.md:
+
+# Notes for {Agent Name}
+
+## Must Do
+- {instruction the agent must follow}
+
+## Must NOT Do
+- {mistake to avoid}
+
+## Style
+- {how this agent should work in this project}
+```
+
+Agent names: `tester`, `developer`, `reviewer`, `architect`, `designer`, `ux-engineer`, `manual-qa`, `devops`, `researcher`, `dba`.
+
+**Every agent brief you send MUST include:** `If .claude/agent-notes/{agent-name}.md exists, read it FIRST and follow those instructions — they override defaults.`
+
 ## Step 1.5: Bootstrap (first sprint only)
 
 On the VERY FIRST sprint, before any task cycle, handle project scaffolding:
@@ -47,6 +78,8 @@ Announce which task you're starting:
 
 If the task creates NEW functions, modules, or APIs that don't exist yet, the tester needs to know the interface before writing tests. Send **architect** (quick, 1-2 turns) to define the contract:
 
+> If `.claude/agent-notes/architect.md` exists, read it FIRST and follow those instructions.
+>
 > For TASK-{N}, define the public interface contract:
 > - Function/method signatures (name, parameters, return type)
 > - Module/file paths where they will live
@@ -71,6 +104,8 @@ Update task status to `TESTING` in `.claude/tasks/TASK-{N}.md`.
 
 Send **tester** with this brief:
 
+> If `.claude/agent-notes/tester.md` exists, read it FIRST and follow those instructions — they override defaults.
+>
 > Task: TASK-{N}
 > Description: {paste the task description here}
 > Acceptance Criteria: {paste the acceptance criteria here}
@@ -130,6 +165,8 @@ Update task status to `IN_PROGRESS` in `.claude/tasks/TASK-{N}.md`.
 
 Send **developer** with this brief:
 
+> If `.claude/agent-notes/developer.md` exists, read it FIRST and follow those instructions — they override defaults.
+>
 > Task: TASK-{N}
 > Description: {paste the task description here}
 > Acceptance Criteria: {paste the acceptance criteria here}
@@ -196,6 +233,8 @@ The developer's evidence-based challenge is a valuable signal. Developers read t
 
 Send **reviewer** with this brief:
 
+> If `.claude/agent-notes/reviewer.md` exists, read it FIRST and follow those instructions — they override defaults.
+>
 > Review the work done for TASK-{N}.
 >
 > Read `.claude/tasks/TASK-{N}.md` for the acceptance criteria.
@@ -369,6 +408,8 @@ Every relevant agent reviews the milestone as a whole — not individual tasks, 
 
 #### Designer verdict (projects with visual UI)
 
+> If `.claude/agent-notes/designer.md` exists, read it FIRST and follow those instructions.
+>
 > Milestone {N} visual review.
 > Read `.claude/tasks/_overview.md` to understand what was built.
 > Read `.claude/design-spec.md` for the design system.
@@ -388,6 +429,8 @@ Every relevant agent reviews the milestone as a whole — not individual tasks, 
 
 #### UX Engineer verdict (projects with user-facing interface)
 
+> If `.claude/agent-notes/ux-engineer.md` exists, read it FIRST and follow those instructions.
+>
 > Milestone {N} usability review.
 > Read `.claude/product-vision.md` for the user flows.
 > Read `.claude/tasks/_overview.md` to understand what was built.
@@ -406,6 +449,8 @@ Every relevant agent reviews the milestone as a whole — not individual tasks, 
 
 #### Manual QA verdict (all project types)
 
+> If `.claude/agent-notes/manual-qa.md` exists, read it FIRST and follow those instructions.
+>
 > Exploratory QA for Milestone {N}: "{milestone goal}".
 > Read `.claude/tasks/_overview.md` to understand what was built.
 > Read all DONE task files from this milestone for context.
