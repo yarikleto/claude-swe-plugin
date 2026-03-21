@@ -88,21 +88,21 @@ Use `Grep` to scan `.claude/tasks/` for task statuses (`**Status:**`). Find the 
 Announce which task you're starting:
 > "Starting TASK-{N}: {name}. Size: {S/M/L}."
 
-## Step 2.5: Interface contract (for tasks introducing new modules)
+## Step 2.5: Behavior contract (for tasks introducing new capabilities)
 
-If the task creates NEW functions, modules, or APIs that don't exist yet, the tester needs to know the interface before writing tests. Send **architect** (quick, 1-2 turns) to define the contract:
+If the task creates NEW user-facing behavior that doesn't exist yet, the tester needs to understand the expected behavior before writing tests. Send **architect** (quick, 1-2 turns) to define the behavior contract:
 
 > If `.claude/agent-notes/architect.md` exists, read it FIRST and follow those instructions.
 >
-> For TASK-{N}, define the public interface contract:
-> - Function/method signatures (name, parameters, return type)
-> - Module/file paths where they will live
-> - Key types/interfaces involved
-> - Error types and codes
+> For TASK-{N}, define the expected behavior contract:
+> - What inputs the feature accepts (data types, formats, boundaries)
+> - What outputs/results the feature produces
+> - What error cases exist and what the user/system should experience
+> - Integration points with existing features (if any)
 >
-> Keep it minimal — just enough for the tester to write tests against. Save to `.claude/contracts/TASK-{N}.md`.
+> Do NOT prescribe implementation details (function names, file paths, class structure) — that's the developer's decision. Focus on WHAT the feature does, not HOW it's built. Save to `.claude/contracts/TASK-{N}.md`.
 
-**Skip this step** if the task modifies existing code (the existing signatures ARE the contract).
+**Skip this step** if the task modifies existing code (the existing behavior IS the contract).
 
 ## Step 2.5b: Size check — is this task small enough?
 
@@ -121,14 +121,14 @@ Send **tester** with this brief:
 > If `.claude/agent-notes/tester.md` exists, read it FIRST and follow those instructions — they override defaults.
 >
 > Task: TASK-{N}
-> Description: {paste the task description here}
+> Goal: {paste the task goal here}
 > Acceptance Criteria: {paste the acceptance criteria here}
 >
-> If there's an interface contract at `.claude/contracts/TASK-{N}.md`, write tests against those signatures.
-> If modifying existing code, read the current code to understand existing interfaces.
+> If there's a behavior contract at `.claude/contracts/TASK-{N}.md`, read it to understand expected inputs, outputs, and error cases.
+> If modifying existing code, read the current code to understand existing behavior.
 > Also read `.claude/test-plan.md` for test framework, conventions, and file structure.
 >
-> Write failing tests that encode ALL acceptance criteria. Follow TDD — every criterion must have at least one test. Apply your test design techniques (equivalence partitioning, boundary values, error guessing).
+> Write failing tests that verify the feature WORKS CORRECTLY — every acceptance criterion must have at least one test. Test observable behavior (inputs → expected outcomes), NOT implementation details (internal functions, call order, specific patterns). The developer must be free to implement however they choose.
 >
 > You MAY import production code types and modules in your tests (reading is fine).
 > You MAY create test-only helpers, factories, and fixtures.
@@ -143,18 +143,18 @@ When tester returns, verify tests were written.
 Before committing, send **architect** to verify the tester didn't write wrong tests:
 
 > Review the tests written for TASK-{N}.
-> Read `.claude/tasks/TASK-{N}.md` for the acceptance criteria.
+> Read `.claude/tasks/TASK-{N}.md` for the task goal and acceptance criteria.
 > Read `.claude/system-design.md` for the architecture context.
-> If a contract exists at `.claude/contracts/TASK-{N}.md`, read that too.
+> If a behavior contract exists at `.claude/contracts/TASK-{N}.md`, read that too.
 > Read the test files the tester created.
 >
 > Check:
 > 1. **Criteria coverage:** Does every acceptance criterion have at least one test that actually verifies it? Not just a test that mentions it — a test whose assertions would fail if the criterion weren't met.
 > 2. **Correct assertions:** Do the tests assert what the criteria actually ask for? Watch for subtle mismatches (e.g., testing 200 when spec says 201, testing field exists when spec says field is validated, testing happy path when spec requires error handling).
 > 3. **Wrong assumptions:** Did the tester misinterpret a requirement? (e.g., testing a field as optional when the spec says required, using wrong boundary values, expecting the wrong error type)
-> 4. **Over-specification:** Do any tests lock in implementation details the spec doesn't mandate? (e.g., asserting internal method calls, exact SQL queries, specific algorithms when only the result matters). These force the developer into a narrow implementation path.
+> 4. **Over-specification (CRITICAL):** Do any tests lock in implementation details that the task goal doesn't mandate? (e.g., asserting internal method calls, exact SQL queries, specific function names, specific class structure, call order). Tests must verify BEHAVIOR (inputs → expected outcomes), not HOW the code is structured. The developer must be free to implement however they choose.
 >
-> Return: PASS (tests correctly encode the spec) or FAIL with specific issues (which test, what it asserts, what the spec actually says).
+> Return: PASS (tests verify behavior correctly) or FAIL with specific issues (which test, what it asserts, what the spec actually says).
 
 **If architect says PASS:** Commit and continue.
 
@@ -182,16 +182,18 @@ Send **developer** with this brief:
 > If `.claude/agent-notes/developer.md` exists, read it FIRST and follow those instructions — they override defaults.
 >
 > Task: TASK-{N}
-> Description: {paste the task description here}
+> Goal: {paste the task goal here}
 > Acceptance Criteria: {paste the acceptance criteria here}
 > Visual Criteria: {paste visual criteria here, if any}
+> Suggested Approach: {paste if exists, or omit — this is optional, you decide how to implement}
 >
-> The tester has written failing tests. Read them to understand what "done" means.
+> Your PRIMARY objective is to implement the task goal correctly. The acceptance criteria define "done."
+> The tester has written failing tests — they verify the feature works. Read them as a sanity check, but focus on implementing the feature properly, not just satisfying test assertions.
 > Read the relevant system design sections in `.claude/system-design.md`.
 > If the task has visual criteria, read `.claude/design-spec.md` — use the exact design tokens (colors, spacing, fonts, border-radius, shadows) specified there. Don't guess at visual values.
 > Read the existing codebase to match patterns and style.
 >
-> Implement the task. Make ALL tests green.
+> Implement the task correctly. You decide the approach — function names, file structure, patterns are your call.
 > For UI tasks: match the design spec exactly. The designer will verify pixel-level.
 >
 > Remember: you MUST NOT touch any test files. Only production code.
