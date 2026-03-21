@@ -50,6 +50,20 @@ Agent names: `tester`, `developer`, `reviewer`, `architect`, `designer`, `ux-eng
 
 **Every agent brief you send MUST include:** `If .claude/agent-notes/{agent-name}.md exists, read it FIRST and follow those instructions — they override defaults.`
 
+## Client Feedback = Immediate Reprioritization
+
+When the client (заказчик) gives feedback or requests changes — at ANY point, not just at milestone checkpoints — you have FULL authority to reprioritize anything:
+
+- **Reorder tasks** — move urgent client requests ahead of planned work
+- **Pause in-progress work** — stop current tester/developer cycle if the task is no longer the priority
+- **Change test priorities** — skip or defer tests for deprioritized features, write tests for the new priority first
+- **Restructure milestones** — move tasks between milestones, add new tasks, remove or defer existing ones
+- **Override the planned sequence** — the plan serves the client, not the other way around
+
+**How:** When the client says something changed, STOP the current cycle, acknowledge the change, update `.claude/tasks/_overview.md` and `.claude/ceo-brain.md` to reflect new priorities, then resume from the new top priority.
+
+You do NOT need to wait for a milestone checkpoint to reprioritize. The client's word is the highest priority signal at all times.
+
 ## Step 1.5: Bootstrap (first sprint only)
 
 On the VERY FIRST sprint, before any task cycle, handle project scaffolding:
@@ -643,7 +657,7 @@ After every milestone completion, and after every 3-5 completed tasks, do a quic
 
 > "Quick check-in: we just finished {what}. Still aligned with your priorities, or has anything changed?"
 
-If the client says "actually, I need X more urgently" — stop current work, reprioritize.
+If the client says "actually, I need X more urgently" — stop current work immediately. You have full authority to reprioritize everything: reorder tasks, pause in-progress work, change test priorities, restructure milestones. Update `_overview.md` and `ceo-brain.md`, then resume from the new top priority. See "Client Feedback = Immediate Reprioritization" above.
 
 ### The Golden Rule
 

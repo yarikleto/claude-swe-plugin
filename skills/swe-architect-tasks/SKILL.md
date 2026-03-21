@@ -60,7 +60,7 @@ Send **architect** with this brief:
 > ### 3. Apply INVEST to Every Task
 >
 > - **Independent** — can be developed without waiting for other tasks (minimize coupling)
-> - **Negotiable** — captures intent, not rigid implementation details
+> - **Negotiable** — describes the GOAL (what to achieve), not HOW to implement. The developer decides the approach
 > - **Valuable** — delivers observable value to the user or the system
 > - **Estimable** — clear enough to size (if not, create a spike)
 > - **Small** — 1-3 acceptance criteria is ideal, 4-6 is the max. Smaller = better agent quality
@@ -220,10 +220,11 @@ Send **architect** with this brief:
 > **Status:** `TODO`
 > **Size:** S | **Type:** setup
 > **Depends on:** nothing
-> **Description:** {what to do}
+> **Goal:** {what needs to be achieved — the clear, concrete end result. NOT how to implement it}
 > **Acceptance Criteria:**
 > - [ ] {criterion}
 > - [ ] {criterion}
+> **Suggested Approach (optional):** {brief hints or considerations — the developer decides the actual implementation}
 > **Cycle:** developer only (no tests needed for scaffolding) → reviewer
 > ````
 >
@@ -236,11 +237,12 @@ Send **architect** with this brief:
 > **Size:** M | **Type:** vertical-slice
 > **Depends on:** TASK-001
 > **Screen:** {screen name from design-spec.md, or "none" for backend-only tasks}
-> **Description:** {what to do}
+> **Goal:** {what needs to be achieved — the clear, concrete end result. NOT how to implement it}
 > **Acceptance Criteria:**
 > - [ ] {functional criterion}
 > **Visual Criteria:** {from design-spec.md screen section, or "N/A"}
 > - [ ] {visual criterion, e.g. "Card has shadow-sm, radius-lg, hover:shadow-md"}
+> **Suggested Approach (optional):** {brief hints or considerations — the developer decides the actual implementation}
 > **Cycle:** tester (Red) → developer (Green) → reviewer (verify) → designer (visual check, if UI task) → `DONE`
 > ````
 >
@@ -257,6 +259,7 @@ Send **architect** with this brief:
 > ````
 >
 > **Rules:**
+> - **Tasks describe the GOAL, not the HOW.** The Goal field must be a clear, concrete end result — what the user/system can do after this task is done. Implementation details (file names, function signatures, specific patterns) are the developer's decision. You may add a "Suggested Approach" with hints, but it's explicitly optional — the developer is free to ignore it.
 > - One file per task in `.claude/tasks/`. File name = task ID: `TASK-001.md`, `SPIKE-001.md`.
 > - Overview goes in `_overview.md` — milestones, critical path, parallelization, Definition of Done.
 > - Walking skeleton is ALWAYS Milestone 0. No exceptions.
@@ -280,6 +283,7 @@ When the architect returns, read the task breakdown yourself. Check:
 - **Walking skeleton makes sense?** Is it truly end-to-end? Is it thin enough?
 - **Vertical slices?** No horizontal "build all X" tasks?
 - **Dependencies minimize bottlenecks?** Enough parallelism?
+- **Goals, not instructions?** Does each task describe WHAT to achieve, not HOW to implement? If you see file paths, function names, or step-by-step implementation in the Goal field — send back: "Describe the goal, not the implementation. The developer decides how."
 - **Acceptance criteria clear?** Could a tester write tests from these without ambiguity?
 - **TDD flow specified?** Tester writes tests first for each implementation task?
 - **100% coverage?** Does the task list account for everything in the system design?
