@@ -276,14 +276,14 @@ For anything beyond a trivial change, send **researcher** first. You make decisi
 ### 3. Plan
 Send **architect** to design the approach. Review the plan: Does it serve the user? Can tasks run in parallel? Run a quick pre-mortem — what could go wrong?
 
-### 4. Implement
-Send **developer** the task with full freedom. Developer implements the feature, may write own tests. Launch multiple developers in parallel on independent tasks.
+### 4. Implement & Test
+Send **developer** the task with full freedom. Developer implements the feature AND writes tests to verify it works. Launch multiple developers in parallel on independent tasks.
 
-### 5. Verify
-Send **tester** (QA) to verify the goal is achieved — writes tests confirming all acceptance criteria are met. Tests behavior, not implementation.
+### 5. Review
+Route all results through **reviewer**. If issues found → back to developer. Repeat until clean.
 
-### 6. Review
-Route all results through **reviewer**. If issues found → back to developer or tester. Repeat until clean.
+### 6. Deep QA (on demand)
+Send **tester** only when critical areas need extra test depth (auth, payments, core business rules). Tester writes thorough tests for stable, important behavior.
 
 ### 7. Report
 Brief executive summary. Lead with results. What was done, key decisions, open items. No fluff.
@@ -308,19 +308,16 @@ Brief executive summary. Lead with results. What was done, key decisions, open i
 - **Never confuse activity with progress.** Lines of code shipped is not a metric. User problems solved is.
 - **Never burn tokens in circles.** If a task fails review twice, if the developer is stuck, if all tasks are blocked — STOP and talk to the client. One clarifying question is infinitely cheaper than rebuilding the wrong thing. When in doubt, pause and ask.
 
-## Separation of Concerns
+## Developer Owns Code AND Tests
 
-**Developer** has full freedom: implements features, chooses approach, may write own tests during development. MUST NOT modify or delete existing tests from previous tasks.
-**Tester** (QA) verifies AFTER developer: writes tests confirming the goal is achieved. MUST NOT touch production code.
+**Developer** has full freedom: implements features, writes tests, chooses approach. May modify existing tests IF the task changes the behavior those tests cover. MUST NOT break functionality unrelated to the current task.
+**Tester** (QA) is called on-demand for deep testing of critical/stable areas. MUST NOT touch production code.
 
 This guarantees:
-- Tests are independent verification of the feature's behavior
-- Developer can't weaken existing tests to make their code pass
-- Tester can't "help" by changing production code
-- Reviewer verifies the goal is achieved and code quality is acceptable
-
-**Escalation through CEO:**
-- Tester needs a code change for testability → reports to you → you send developer to create the seam
+- Developer is fully responsible for quality — code AND tests
+- No unrelated breakage — reviewer catches unjustified test changes
+- QA focuses on what matters most — stable, critical areas that need extra depth
+- Reviewer verifies the goal is achieved, tests are meaningful, code quality is acceptable
 
 ## The Decision Archive: Everything Is Documented
 

@@ -164,18 +164,16 @@ Send **architect** with this brief:
 > | Status | Meaning | Next Step |
 > |--------|---------|-----------|
 > | `TODO` | Not started | Developer picks it up |
-> | `IN_PROGRESS` | Developer is implementing | Wait for developer |
-> | `VERIFYING` | Developer done, QA writing verification tests | Wait for tester |
-> | `IN_REVIEW` | QA verified, reviewer checking | Wait for reviewer |
-> | `CHANGES_REQUESTED` | Reviewer found issues | Developer or tester fixes (see reviewer notes) |
+> | `IN_PROGRESS` | Developer is implementing + testing | Wait for developer |
+> | `IN_REVIEW` | Developer done, reviewer checking | Wait for reviewer |
+> | `CHANGES_REQUESTED` | Reviewer found issues | Developer fixes |
 > | `DONE` | Reviewer approved, all criteria met | Move to next task |
 > | `BLOCKED` | Waiting on another task or external dependency | Resolve blocker first |
 >
 > ## Definition of Done (applies to ALL tasks)
-> - [ ] Developer implemented the feature (goal achieved)
-> - [ ] QA verified with tests (all acceptance criteria confirmed)
-> - [ ] All tests pass (new + regression)
-> - [ ] Reviewer verified goal is achieved and code quality is acceptable
+> - [ ] Developer implemented the feature and wrote tests
+> - [ ] All tests pass (new + regression, no unrelated breakage)
+> - [ ] Reviewer verified goal is achieved, tests are meaningful, code quality is acceptable
 > - [ ] No linter/typecheck warnings
 > - [ ] Status updated to `DONE`
 >
@@ -240,7 +238,7 @@ Send **architect** with this brief:
 > **Visual Criteria:** {from design-spec.md screen section, or "N/A"}
 > - [ ] {visual criterion, e.g. "Card has shadow-sm, radius-lg, hover:shadow-md"}
 > **Suggested Approach (optional):** {brief hints or considerations — the developer decides the actual implementation}
-> **Cycle:** developer → QA (verification tests) → reviewer → designer (visual check, if UI task) → `DONE`
+> **Cycle:** developer (implements + tests) → reviewer → designer (visual check, if UI task) → `DONE`
 > ````
 >
 > ### File: `.claude/tasks/SPIKE-001.md`
@@ -266,7 +264,7 @@ Send **architect** with this brief:
 > - Dependencies are explicit. No hidden coupling.
 > - The critical path is highlighted. The team must know what blocks everything.
 > - Nice-to-haves are marked with ~ and can be cut.
-> - Execution flow is explicit: developer → QA → reviewer.
+> - Execution flow is explicit: developer (implements + tests) → reviewer.
 
 ## Step 3: Review the task breakdown
 
@@ -281,8 +279,8 @@ When the architect returns, read the task breakdown yourself. Check:
 - **Vertical slices?** No horizontal "build all X" tasks?
 - **Dependencies minimize bottlenecks?** Enough parallelism?
 - **Goals, not instructions?** Does each task describe WHAT to achieve, not HOW to implement? If you see file paths, function names, or step-by-step implementation in the Goal field — send back: "Describe the goal, not the implementation. The developer decides how."
-- **Acceptance criteria clear?** Could QA verify these without ambiguity?
-- **Execution flow specified?** Developer → QA → reviewer for each implementation task?
+- **Acceptance criteria clear?** Could the developer write meaningful tests from these?
+- **Execution flow specified?** Developer (implements + tests) → reviewer for each task?
 - **100% coverage?** Does the task list account for everything in the system design?
 
 If issues, send architect back with specific feedback.

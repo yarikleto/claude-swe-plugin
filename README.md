@@ -96,13 +96,13 @@ Database-agnostic — chooses the right engine for the domain (relational, docum
 <td width="50%" valign="top">
 
 ### Developer
-Data structures first, code second (Torvalds). Full freedom in implementation — chooses approach, patterns, structure. Eliminates edge cases through better design, not conditionals (Torvalds' "good taste"). Immutability and pure functions by default (Hickey, Carmack). May write own tests during development. Owns documentation and DB migrations. **Must not modify existing tests from previous tasks.**
+Data structures first, code second (Torvalds). Full freedom — owns both code AND tests. Implements features, writes tests to verify, may modify existing tests if the task changes covered behavior. Eliminates edge cases through better design, not conditionals (Torvalds' "good taste"). Immutability and pure functions by default (Hickey, Carmack). Owns documentation and DB migrations. **Must not break unrelated functionality.**
 
-### Tester (QA)
-Verifies AFTER the developer implements. Writes tests to confirm the feature works as intended — behavior and outcomes, not implementation details. Equivalence partitioning, boundary values, state transitions, error guessing. Knows the test doubles taxonomy (Meszaros). **Forbidden from touching production code.**
+### Tester (QA — on demand)
+Called when critical areas need deep test coverage — core business logic, auth, payments, stable integrations. Not part of the default task cycle. Writes thorough tests for behavior that rarely changes. Equivalence partitioning, boundary values, state transitions, error guessing. **Forbidden from touching production code.**
 
 ### Reviewer
-Triple gatekeeper: (1) Separation — verifies tester didn't touch production code, developer didn't break existing tests. (2) Robustness — implementation is genuine, general, and robust (not fitted to test cases). (3) Test quality + code quality — tests verify behavior not implementation, acceptance criteria met, goal achieved. Marks criteria checkboxes `[x]` on APPROVE. Nothing ships without APPROVE.
+Triple gatekeeper: (1) No unrelated breakage — modified tests are justified by the task. (2) Robustness — implementation is genuine, general, and robust (not fitted to test cases). (3) Test coverage + code quality — developer wrote meaningful tests, acceptance criteria met, goal achieved. Marks criteria checkboxes `[x]` on APPROVE. Nothing ships without APPROVE.
 
 ### DevOps
 Full infrastructure stack: CI/CD, Docker, reverse proxy (Caddy/nginx/Traefik), caching (CDN + proxy + browser), load balancing, SSL/TLS (Mozilla profiles, auto-certs), compression (brotli/gzip, pre-compressed), rate limiting (3 layers: edge → gateway → app), structured logging (Loki/ELK, correlation IDs), environment management (dev/staging/prod parity, feature flags). Starts simple (PaaS > K8s). Creates handoff guides for client actions. Clear boundary with architect: architect decides WHAT, DevOps implements HOW it runs.
@@ -117,11 +117,11 @@ Intelligence analyst with 6 modes: market/domain research, codebase exploration,
 </tr>
 </table>
 
-## Separation of Concerns
+## Developer Owns Code AND Tests
 
-> **Developer implements with full freedom (may write tests). Tester verifies with tests (must not touch production code).**
+> **Developer implements with full freedom — writes code, writes tests, owns quality. QA is called on-demand for critical areas.**
 
-Developer goes first, QA verifies after. Developer can write their own tests during development but must not modify existing tests from previous tasks. Tester writes verification tests to confirm the goal was achieved — tests behavior, not implementation details.
+Developer implements the feature and verifies it with tests. May modify existing tests if the task changes covered behavior, but must not break unrelated functionality. QA (tester) is called only when the CEO needs deep testing of critical/stable areas.
 
 ## Skills
 
@@ -134,7 +134,7 @@ Developer goes first, QA verifies after. Developer can write their own tests dur
 | `/swe-devops-deploy` | Infrastructure — CI/CD, Docker, hosting, CDN, monitoring + client handoff guides | DevOps |
 | `/swe-architect-tasks` | Decompose system design into tasks with statuses, dependencies, acceptance criteria | Architect |
 | `/swe-tester-plan` | Test strategy — frameworks, pyramid, coverage map, Definition of Done | Tester |
-| `/swe-sprint` | Task cycle: developer implements → QA verifies with tests → reviewer → designer/UX → DONE. Milestone: all agents give verdicts → client reviews → CEO synthesizes | CEO |
+| `/swe-sprint` | Task cycle: developer implements + tests → reviewer → designer/UX → DONE. QA on demand for critical areas. Milestone: all agents give verdicts → client reviews → CEO synthesizes | CEO |
 | `/swe-brief` | CEO revisits product vision, checks reality vs plan, updates strategic documents | CEO |
 | `/swe-sync` | Quick sync — CEO reviews recent changes, updates knowledge base | CEO |
 
@@ -156,12 +156,12 @@ Developer goes first, QA verifies after. Developer can write their own tests dur
 /swe-tester-plan       Test strategy, frameworks, coverage map
       ↓
 /swe-sprint            For each task:
-                         ┌─ developer implements (full freedom, may write tests)
-                         ├─ QA verifies with tests (behavior, not implementation)
-                         ├─ reviewer verifies (separation + anti-cheat + test quality + code quality)
+                         ┌─ developer implements + writes tests
+                         ├─ reviewer verifies (no unrelated breakage + anti-cheat + test coverage + quality)
                          ├─ designer checks visual fidelity (UI tasks)
                          ├─ UX engineer checks usability (UI tasks)
                          └─ DONE → next task
+                        QA (tester) on demand for critical areas
                         Milestone checkpoint:
                          ├─ designer + UX + manual QA give verdicts (parallel)
                          ├─ client reviews: direction check + feedback
@@ -171,19 +171,19 @@ Developer goes first, QA verifies after. Developer can write their own tests dur
 ## The Task Cycle
 
 ```
-TODO → IN_PROGRESS → VERIFYING → IN_REVIEW → DONE
-                                      ↓
-                               CHANGES_REQUESTED → fix → IN_REVIEW
-                                      ↓
-                                   BLOCKER → revert → IN_PROGRESS
+TODO → IN_PROGRESS → IN_REVIEW → DONE
+                          ↓
+                   CHANGES_REQUESTED → fix → IN_REVIEW
+                          ↓
+                       BLOCKER → revert → IN_PROGRESS
 ```
 
 ### Special task types
 
 - **`setup`** — developer only → reviewer (bootstrap, scaffolding)
-- **`refactor`** — developer → reviewer → tester runs regression (no new tests)
-- **`performance`** — researcher profiles → developer optimizes → tester benchmarks
-- **`hotfix`** — fast-track: developer fixes → reviewer quick review → tester adds regression test after
+- **`refactor`** — developer refactors + runs full suite → reviewer verifies
+- **`performance`** — researcher profiles → developer optimizes + benchmarks → reviewer verifies
+- **`hotfix`** — fast-track: developer fixes + adds regression test → reviewer quick review
 
 ### Bootstrap (first sprint)
 
@@ -198,11 +198,11 @@ The CEO stops the cycle and talks to the client when:
 
 - A task fails review **twice** (retry loop)
 - Developer **can't implement** (design flaw, contradictory criteria)
-- QA **can't verify** (unclear criteria, untestable implementation)
+- Developer **can't test** (unclear criteria, missing test infra)
 - **All tasks blocked** (nothing productive to do)
 - Task is **much bigger than estimated** (scope discovery)
 - **Design doesn't match reality** (fundamental flaw found)
-- Repeated **separation violations** (systemic problem)
+- Repeated **unrelated breakage** (systemic problem)
 - Every **3-5 tasks**: pulse check with the client
 
 **Golden rule:** When in doubt, STOP and ASK. One clarifying question is cheaper than rebuilding the wrong thing.
@@ -227,12 +227,12 @@ claude-swe-plugin/
 │   ├── architect.md                # Domain-agnostic system design, ADRs, C4
 │   ├── dba.md                      # Database-agnostic schema, migrations, integrity
 │   ├── designer.md                 # Prototypes, visual review, design spec
-│   ├── developer.md                # Implementation with full freedom (may write tests)
+│   ├── developer.md                # Implementation + tests, full freedom
 │   ├── devops.md                   # CI/CD, infrastructure, handoff guides
 │   ├── manual-qa.md                # Exploratory testing, edge cases, cross-viewport
 │   ├── researcher.md               # 6-mode intelligence analyst
-│   ├── reviewer.md                 # Separation + robustness + test quality + code quality gate
-│   ├── tester.md                   # QA verification, writes tests after implementation (forbidden from production code)
+│   ├── reviewer.md                 # No-breakage + robustness + test coverage + code quality gate
+│   ├── tester.md                   # On-demand deep QA for critical areas (forbidden from production code)
 │   └── ux-engineer.md              # Nielsen's 10 heuristics, accessibility
 └── skills/
     ├── swe-init/SKILL.md           # Project kickoff
@@ -276,12 +276,12 @@ claude-swe-plugin/
 | Hook | Event | What it does |
 |------|-------|-------------|
 | **CEO Brain Loader** | `SessionStart` | Loads `.claude/ceo-brain.md` into context. If missing, reminds to run `/swe-init`. |
-| **Separation Enforcer** | `PreToolUse` (Edit\|Write) | **Mechanically BLOCKS** tester from editing production files. Uses `agent_type` to identify who's editing. Developer has full freedom. Language-agnostic: covers JS/TS, Python, Ruby, Go, Rust, Java, C/C++, Swift, Dart, Elixir, PHP, C#, Haskell, Lua, Shell, and more. |
+| **QA Boundary Enforcer** | `PreToolUse` (Edit\|Write) | **Mechanically BLOCKS** tester from editing production files (when QA is called). Uses `agent_type` to identify who's editing. Developer has full freedom over both code and tests. Language-agnostic. |
 | **Auto-Formatter** | `PostToolUse` (Edit\|Write) | Runs the project's formatter after every code edit. Tries prettier/biome first, falls back to language-specific tools (gofmt, rustfmt, black, rubocop, clang-format, etc.). Async, non-blocking. |
 | **Save Progress Guard** | `Stop` | **Warns** if tasks are still `IN_PROGRESS`, uncommitted changes exist, or CEO brain is stale. Reminds to save work before leaving. |
 | **Post-Commit Reminder** | `PostToolUse` (Bash) | After `git commit`, reminds to update task status in `.claude/tasks/`. |
 
-The separation hook provides **mechanical enforcement** — even if the tester agent "forgets" the rule, the hook physically blocks the write to production files.
+The QA boundary hook provides **mechanical enforcement** — when QA is called for deep testing, the hook physically blocks the tester from editing production files.
 
 ## Adapts to Any Project Type
 
