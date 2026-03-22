@@ -99,7 +99,7 @@ Database-agnostic — chooses the right engine for the domain (relational, docum
 Data structures first, code second (Torvalds). Full freedom — owns both code AND tests. Implements features, writes tests to verify, may modify existing tests if the task changes covered behavior. Eliminates edge cases through better design, not conditionals (Torvalds' "good taste"). Immutability and pure functions by default (Hickey, Carmack). Owns documentation and DB migrations. **Must not break unrelated functionality.**
 
 ### Tester (QA — on demand)
-Called when critical areas need deep test coverage — core business logic, auth, payments, stable integrations. Not part of the default task cycle. Writes thorough tests for behavior that rarely changes. Equivalence partitioning, boundary values, state transitions, error guessing. **Forbidden from touching production code.**
+Called when critical areas need deep test coverage — core business logic, auth, payments, stable integrations. Not part of the default task cycle. Writes thorough tests for behavior that rarely changes. Equivalence partitioning, boundary values, state transitions, error guessing. **Can only write tests, not production code.**
 
 ### Reviewer
 Triple gatekeeper: (1) No unrelated breakage — modified tests are justified by the task. (2) Robustness — implementation is genuine, general, and robust (not fitted to test cases). (3) Test coverage + code quality — developer wrote meaningful tests, acceptance criteria met, goal achieved. Marks criteria checkboxes `[x]` on APPROVE. Nothing ships without APPROVE.
@@ -232,7 +232,7 @@ claude-swe-plugin/
 │   ├── manual-qa.md                # Exploratory testing, edge cases, cross-viewport
 │   ├── researcher.md               # 6-mode intelligence analyst
 │   ├── reviewer.md                 # No-breakage + robustness + test coverage + code quality gate
-│   ├── tester.md                   # On-demand deep QA for critical areas (forbidden from production code)
+│   ├── tester.md                   # On-demand deep QA for critical areas (can only write tests, not production code)
 │   └── ux-engineer.md              # Nielsen's 10 heuristics, accessibility
 └── skills/
     ├── swe-init/SKILL.md           # Project kickoff
